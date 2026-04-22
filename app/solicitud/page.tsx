@@ -4,12 +4,18 @@ import { useState, FormEvent, useRef, useCallback } from 'react';
 import Image from 'next/image';
 import { supabase } from '@/lib/supabase';
 import { uploadTicketImage, validateImageFile } from '@/lib/storage';
+import {
+  sanitize,
+  validateEmail,
+  validateNombre,
+  validateDescripcion,
+  validateCategoria,
+  validatePrioridad,
+  ALLOWED_CATEGORIAS,
+  LIMITS,
+} from '@/lib/validation';
 
-const ALLOWED_EMAIL_DOMAINS = ['travelkit.co', 'travelkit.us'];
-const MAX_NOMBRE_LENGTH = 100;
-const MAX_DESCRIPCION_LENGTH = 2000;
-
-const CATEGORIAS = ['Software', 'Hardware', 'Conectividad', 'Accesos', 'Teams', 'Correo'];
+const CATEGORIAS = ALLOWED_CATEGORIAS;
 const PRIORIDADES = [
   { value: 'Alta',  label: 'Alta',  hint: 'No puedo trabajar' },
   { value: 'Media', label: 'Media', hint: 'Me afecta pero puedo continuar' },
@@ -72,29 +78,17 @@ export default function SolicitudPage() {
     setImagePreview(null);
   }
 
-  function isEmailAllowed(value: string): boolean {
-    const domain = value.trim().toLowerCase().split('@')[1] ?? '';
-    return ALLOWED_EMAIL_DOMAINS.includes(domain);
-  }
-
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    if (!nombre.trim() || !email.trim() || !categoria || !prioridad || !descripcion.trim()) {
-      setError('Por favor completa todos los campos.');
-      return;
-    }
-    if (!isEmailAllowed(email)) {
-      setError(`Solo se aceptan correos corporativos (${ALLOWED_EMAIL_DOMAINS.join(', ')}).`);
-      return;
-    }
-    if (nombre.trim().length > MAX_NOMBRE_LENGTH) {
-      setError(`El nombre no puede superar ${MAX_NOMBRE_LENGTH} caracteres.`);
-      return;
-    }
-    if (descripcion.trim().length > MAX_DESCRIPCION_LENGTH) {
-      setError(`La descripción no puede superar ${MAX_DESCRIPCION_LENGTH} caracteres.`);
-      return;
-    }
+
+    const emailErr    = validateEmail(email);
+    const nombreErr   = validateNombre(nombre);
+    const descErr     = validateDescripcion(descripcion);
+    const categoriaErr = validateCategoria(categoria);
+    const prioridadErr = validatePrioridad(prioridad);
+    const firstErr = emailErr ?? nombreErr ?? descErr ?? categoriaErr ?? prioridadErr;
+    if (firstErr) { setError(firstErr); return; }
+
     setError('');
     setLoading(true);
 
@@ -109,10 +103,10 @@ export default function SolicitudPage() {
       const { error: dbError } = await supabase.from('tickets').insert({
         ticket_id,
         timestamp:   new Date().toISOString(),
-        email:       email.trim().toLowerCase(),
+        email:       sanitize(email).toLowerCase(),
         categoria,
         prioridad,
-        descripcion: `[${nombre.trim()}] ${descripcion.trim()}`,
+        descripcion: `[${sanitize(nombre)}] ${sanitize(descripcion)}`,
         estado:      'Abierto',
         responsable: null,
         imagen_url,
@@ -195,7 +189,7 @@ export default function SolicitudPage() {
                       onChange={e => setNombre(e.target.value)}
                       placeholder="Ej. María García"
                       required
-                      maxLength={MAX_NOMBRE_LENGTH}
+                      maxLength={LIMITS.nombre}
                       className="px-4 py-3 bg-[#fafafa] border border-[#ddd] rounded-xl text-[14px] text-[#1a1a1a] placeholder:text-[#bbb] outline-none transition-all duration-150 focus:border-[#D32F2F] focus:bg-white focus:shadow-[0_0_0_3px_rgba(211,47,47,0.08)]"
                     />
                   </div>
@@ -274,7 +268,7 @@ export default function SolicitudPage() {
                     rows={4}
                     placeholder="Cuéntanos con detalle qué está pasando, desde cuándo y qué ya intentaste…"
                     required
-                    maxLength={MAX_DESCRIPCION_LENGTH}
+                    maxLength={LIMITS.descripcion}
                     className="px-4 py-3 bg-[#fafafa] border border-[#ddd] rounded-xl text-[14px] text-[#1a1a1a] placeholder:text-[#bbb] outline-none resize-none transition-all duration-150 focus:border-[#D32F2F] focus:bg-white focus:shadow-[0_0_0_3px_rgba(211,47,47,0.08)] leading-relaxed"
                   />
                   <span className="text-right text-[11px] text-[#bbb]">{descripcion.length} caracteres</span>

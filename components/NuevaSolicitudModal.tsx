@@ -3,9 +3,18 @@
 import { useState, FormEvent, useEffect, useRef, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
 import { uploadTicketImage, validateImageFile } from '@/lib/storage';
+import {
+  sanitize,
+  validateDescripcion,
+  validateCategoria,
+  validatePrioridad,
+  ALLOWED_CATEGORIAS,
+  ALLOWED_PRIORIDADES,
+  LIMITS,
+} from '@/lib/validation';
 
-const CATEGORIAS = ['Software', 'Hardware', 'Conectividad', 'Accesos', 'Teams', 'Correo'];
-const PRIORIDADES = ['Alta', 'Media', 'Baja'];
+const CATEGORIAS = ALLOWED_CATEGORIAS;
+const PRIORIDADES = ALLOWED_PRIORIDADES;
 
 interface Props {
   open: boolean;
@@ -99,10 +108,13 @@ export default function NuevaSolicitudModal({ open, userEmail, onClose, onCreate
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    if (!descripcion.trim()) {
-      setError('La descripción es obligatoria.');
-      return;
-    }
+
+    const descErr      = validateDescripcion(descripcion);
+    const categoriaErr = validateCategoria(categoria);
+    const prioridadErr = validatePrioridad(prioridad);
+    const firstErr = descErr ?? categoriaErr ?? prioridadErr;
+    if (firstErr) { setError(firstErr); return; }
+
     setLoading(true);
     setError('');
 
@@ -120,7 +132,7 @@ export default function NuevaSolicitudModal({ open, userEmail, onClose, onCreate
         email:       userEmail,
         categoria,
         prioridad,
-        descripcion: descripcion.trim(),
+        descripcion: sanitize(descripcion),
         estado:      'Abierto',
         responsable: null,
         imagen_url,
@@ -239,6 +251,7 @@ export default function NuevaSolicitudModal({ open, userEmail, onClose, onCreate
               onChange={e => setDescripcion(e.target.value)}
               rows={4}
               placeholder="Describe detalladamente el problema o solicitud…"
+              maxLength={LIMITS.descripcion}
               className="modal-textarea search-input w-full bg-tk-bg3 border border-tk-border2 rounded px-3 py-2 text-[13px] text-tk-text font-sans placeholder:text-tk-text3 focus:outline-none focus:border-tk-accent2 transition-colors duration-[0.12s]"
             />
             <div className="text-right font-mono text-[10px] text-tk-text3">
