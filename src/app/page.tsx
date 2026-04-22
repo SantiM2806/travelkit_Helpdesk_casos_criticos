@@ -1,21 +1,21 @@
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
-import type { Ticket, EstadoFilter, PrioridadFilter, View, Theme, PendingMove, ToastItem, MovementLog } from '@/lib/types';
-import { MOCK_DATA } from '@/lib/data';
-import { normalizeEstado, getSyncTimeStr } from '@/lib/utils';
-import { supabase } from '@/lib/supabase';
-import { createSupabaseBrowser } from '@/lib/supabase-browser';
+import type { Ticket, EstadoFilter, PrioridadFilter, View, Theme, PendingMove, ToastItem, MovementLog } from '@/features/tickets/types';
+import { MOCK_DATA } from '@/features/tickets/actions/ticket.actions';
+import { normalizeEstado, getSyncTimeStr } from '@/features/tickets/utils/formatters';
+import { supabase } from '@/lib/supabase/server';
+import { createSupabaseBrowser } from '@/lib/supabase/client';
 
-import Header          from '@/components/Header';
-import ConfigBanner    from '@/components/ConfigBanner';
-import StatsBar        from '@/components/StatsBar';
-import FiltersRow      from '@/components/FiltersRow';
-import TicketTable     from '@/components/TicketTable';
-import KanbanBoard     from '@/components/KanbanBoard';
-import Modal                from '@/components/Modal';
-import ToastContainer       from '@/components/ToastContainer';
-import NuevaSolicitudModal  from '@/components/NuevaSolicitudModal';
+import Header          from '@/components/layout/Header';
+import ConfigBanner    from '@/components/layout/ConfigBanner';
+import StatsBar        from '@/features/tickets/components/StatsBar';
+import FiltersRow      from '@/features/tickets/components/FiltersRow';
+import TicketTable     from '@/features/tickets/components/TicketTable';
+import KanbanBoard     from '@/features/tickets/components/KanbanBoard';
+import Modal                from '@/components/common/Modal';
+import ToastContainer       from '@/components/common/ToastContainer';
+import NuevaSolicitudModal  from '@/features/tickets/components/NuevaSolicitudModal';
 
 const AUTO_REFRESH = 60; // segundos (0 = desactivado)
 

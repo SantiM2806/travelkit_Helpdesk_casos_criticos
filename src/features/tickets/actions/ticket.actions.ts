@@ -1,4 +1,4 @@
-import type { Ticket } from './types';
+import type { Ticket } from '../types';
 
 function daysAgo(d: number, h: number, m: number): string {
   const t = new Date();

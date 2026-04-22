@@ -1,8 +1,8 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import type { Ticket } from '@/lib/types';
-import { normalizeEstado } from '@/lib/utils';
+import type { Ticket } from '@/features/tickets/types';
+import { normalizeEstado } from '@/features/tickets/utils/formatters';
 
 interface StatsBarProps {
   allTickets: Ticket[];

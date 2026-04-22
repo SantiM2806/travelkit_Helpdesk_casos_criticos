@@ -1,7 +1,7 @@
 'use client';
 
 import { useRef } from 'react';
-import type { EstadoFilter, PrioridadFilter } from '@/lib/types';
+import type { EstadoFilter, PrioridadFilter } from '@/features/tickets/types';
 
 interface FiltersRowProps {
   activeEstado:    EstadoFilter;

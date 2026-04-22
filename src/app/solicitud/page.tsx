@@ -2,8 +2,8 @@
 
 import { useState, FormEvent, useRef, useCallback } from 'react';
 import Image from 'next/image';
-import { supabase } from '@/lib/supabase';
-import { uploadTicketImage, validateImageFile } from '@/lib/storage';
+import { supabase } from '@/lib/supabase/server';
+import { uploadTicketImage, validateImageFile } from '@/lib/supabase/storage';
 import {
   sanitize,
   validateEmail,
@@ -13,7 +13,7 @@ import {
   validatePrioridad,
   ALLOWED_CATEGORIAS,
   LIMITS,
-} from '@/lib/validation';
+} from '@/features/tickets/utils/validations';
 
 const CATEGORIAS = ALLOWED_CATEGORIAS;
 const PRIORIDADES = [

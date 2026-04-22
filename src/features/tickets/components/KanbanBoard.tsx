@@ -1,8 +1,8 @@
 'use client';
 
 import { useRef } from 'react';
-import type { Ticket } from '@/lib/types';
-import { normalizeEstado, badgePrioridad, badgeCat } from '@/lib/utils';
+import type { Ticket } from '@/features/tickets/types';
+import { normalizeEstado, badgePrioridad, badgeCat } from '@/features/tickets/utils/formatters';
 
 interface KanbanBoardProps {
   allTickets:    Ticket[];

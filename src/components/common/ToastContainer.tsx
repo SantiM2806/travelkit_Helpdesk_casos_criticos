@@ -1,6 +1,6 @@
 'use client';
 
-import type { ToastItem } from '@/lib/types';
+import type { ToastItem } from '@/features/tickets/types';
 
 interface ToastContainerProps {
   toasts: ToastItem[];

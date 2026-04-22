@@ -1,10 +1,3 @@
-import { clsx, type ClassValue } from "clsx"
-import { twMerge } from "tailwind-merge"
-
-export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs))
-}
-
 const ESTADO_NORM_MAP: Record<string, string> = {
   abierto:     'abierto',
   'en proceso':'proceso',

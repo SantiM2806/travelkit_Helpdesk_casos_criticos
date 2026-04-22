@@ -1,7 +1,7 @@
 'use client';
 
 import { useRef, useState, useEffect } from 'react';
-import type { PendingMove } from '@/lib/types';
+import type { PendingMove } from '@/features/tickets/types';
 
 interface ModalProps {
   pendingMove: PendingMove | null;

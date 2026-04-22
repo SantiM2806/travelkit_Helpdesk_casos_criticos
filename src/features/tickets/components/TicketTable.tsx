@@ -1,8 +1,8 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import type { Ticket } from '@/lib/types';
-import { normalizeEstado, formatDate, badgePrioridad, badgeEstado, badgeCat } from '@/lib/utils';
+import type { Ticket } from '@/features/tickets/types';
+import { normalizeEstado, formatDate, badgePrioridad, badgeEstado, badgeCat } from '@/features/tickets/utils/formatters';
 
 interface TicketTableProps {
   filteredTickets: Ticket[];

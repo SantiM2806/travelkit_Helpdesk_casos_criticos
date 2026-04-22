@@ -2,8 +2,8 @@
 
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import type { Theme, View } from '@/lib/types';
-import { createSupabaseBrowser } from '@/lib/supabase-browser';
+import type { Theme, View } from '@/features/tickets/types';
+import { createSupabaseBrowser } from '@/lib/supabase/client';
 
 interface HeaderProps {
   currentView: View;

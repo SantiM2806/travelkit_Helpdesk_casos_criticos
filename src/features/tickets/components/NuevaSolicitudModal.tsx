@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, FormEvent, useEffect, useRef, useCallback } from 'react';
-import { supabase } from '@/lib/supabase';
-import { uploadTicketImage, validateImageFile } from '@/lib/storage';
+import { supabase } from '@/lib/supabase/server';
+import { uploadTicketImage, validateImageFile } from '@/lib/supabase/storage';
 import {
   sanitize,
   validateDescripcion,
@@ -11,7 +11,7 @@ import {
   ALLOWED_CATEGORIAS,
   ALLOWED_PRIORIDADES,
   LIMITS,
-} from '@/lib/validation';
+} from '@/features/tickets/utils/validations';
 
 const CATEGORIAS = ALLOWED_CATEGORIAS;
 const PRIORIDADES = ALLOWED_PRIORIDADES;

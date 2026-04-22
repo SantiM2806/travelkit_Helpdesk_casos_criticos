@@ -1,4 +1,4 @@
-import { supabase } from './supabase';
+import { supabase } from './server';
 
 const BUCKET = 'ticket-attachments';
 const MAX_MB = 5;
