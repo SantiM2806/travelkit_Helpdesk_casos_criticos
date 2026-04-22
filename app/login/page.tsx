@@ -36,7 +36,7 @@ export default function LoginPage() {
       <div className="w-full max-w-[380px] bg-tk-bg2 border border-tk-border rounded-lg overflow-hidden animate-fade-up">
 
         {/* Header de la card */}
-        <div className="px-8 pt-8 pb-6 border-b border-tk-border flex flex-col items-center gap-3">
+        <div className="px-6 sm:px-8 pt-7 sm:pt-8 pb-5 sm:pb-6 border-b border-tk-border flex flex-col items-center gap-3">
           <Image
             src="/travelkit-logo_nbtjgf-67feae5fe38949.68302424.png"
             alt="Travelkit"
@@ -51,7 +51,7 @@ export default function LoginPage() {
         </div>
 
         {/* Formulario */}
-        <form onSubmit={handleSubmit} className="px-8 py-7 flex flex-col gap-5">
+        <form onSubmit={handleSubmit} className="px-6 sm:px-8 py-6 sm:py-7 flex flex-col gap-5">
 
           {/* Campo email */}
           <div className="flex flex-col gap-1.5">
@@ -110,7 +110,7 @@ export default function LoginPage() {
         </form>
 
         {/* Footer de la card */}
-        <div className="px-8 pb-6 text-center">
+        <div className="px-6 sm:px-8 pb-5 sm:pb-6 text-center">
           <p className="font-mono text-[10px] text-tk-text3 tracking-[0.04em]">
             Acceso restringido · Solo personal IT autorizado
           </p>

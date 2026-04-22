@@ -62,11 +62,11 @@ export default function StatsBar({ allTickets }: StatsBarProps) {
   }, [allTickets]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
-    <div className="bg-tk-bg2 border-b border-tk-border grid grid-cols-4">
+    <div className="bg-tk-bg2 border-b border-tk-border grid grid-cols-2 md:grid-cols-4">
       {CELLS.map((cell, i) => (
         <div
           key={cell.key}
-          className="pt-4 px-8 pb-0 border-r border-tk-border last:border-r-0 relative overflow-hidden"
+          className="pt-4 px-4 md:px-8 pb-0 border-r border-tk-border last:border-r-0 even:border-r-0 md:even:border-r md:[&:nth-child(4)]:border-r-0 relative overflow-hidden border-b md:border-b-0 [&:nth-child(n+3)]:border-b-0"
         >
           <div className="font-mono text-[10px] tracking-[0.12em] uppercase text-tk-text3 mb-1">
             {cell.label}

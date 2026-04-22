@@ -150,21 +150,21 @@ export default function SolicitudPage() {
         </div>
       </header>
 
-      <main className="max-w-2xl mx-auto px-4 py-12">
+      <main className="max-w-2xl mx-auto px-4 py-8 sm:py-12">
 
         {step === 'form' ? (
           <>
             {/* Título */}
-            <div className="text-center mb-10">
-              <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-[#D32F2F] mb-5 shadow-md">
-                <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6">
+            <div className="text-center mb-7 sm:mb-10">
+              <div className="inline-flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-[#D32F2F] mb-4 sm:mb-5 shadow-md">
+                <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5 sm:w-6 sm:h-6">
                   <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
                 </svg>
               </div>
-              <h1 className="text-[28px] font-semibold text-[#1a1a1a] leading-tight mb-2">
+              <h1 className="text-[22px] sm:text-[28px] font-semibold text-[#1a1a1a] leading-tight mb-2">
                 ¿Necesitas ayuda de IT?
               </h1>
-              <p className="text-[15px] text-[#666] max-w-md mx-auto leading-relaxed">
+              <p className="text-[14px] sm:text-[15px] text-[#666] max-w-md mx-auto leading-relaxed">
                 Cuéntanos tu problema y el equipo de tecnología lo atenderá lo antes posible.
               </p>
             </div>
@@ -175,7 +175,7 @@ export default function SolicitudPage() {
               {/* Barra roja superior */}
               <div className="h-1 bg-[#D32F2F]" />
 
-              <form onSubmit={handleSubmit} className="p-8 flex flex-col gap-6">
+              <form onSubmit={handleSubmit} className="p-5 sm:p-8 flex flex-col gap-5 sm:gap-6">
 
                 {/* Nombre + Email */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
