@@ -1,10 +1,24 @@
 import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const SUPABASE_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const SUPABASE_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+// Public routes: no auth required (accessible to all corporate employees)
+const PUBLIC_PATHS = ['/solicitud'];
 
 export async function middleware(request: NextRequest) {
+  if (!SUPABASE_URL || !SUPABASE_KEY) {
+    console.error('Missing Supabase env vars — check NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY');
+    return NextResponse.next();
+  }
+
+  const { pathname } = request.nextUrl;
+  const isPublicPath = PUBLIC_PATHS.some(p => pathname.startsWith(p));
+
+  // Allow public routes without session check
+  if (isPublicPath) return NextResponse.next({ request });
+
   let supabaseResponse = NextResponse.next({ request });
 
   const supabase = createServerClient(SUPABASE_URL, SUPABASE_KEY, {
@@ -23,10 +37,7 @@ export async function middleware(request: NextRequest) {
   });
 
   const { data: { user } } = await supabase.auth.getUser();
-  const isLoginPage    = request.nextUrl.pathname.startsWith('/login');
-  const isSolicitudPage = request.nextUrl.pathname.startsWith('/solicitud');
-
-  if (isSolicitudPage) return supabaseResponse;
+  const isLoginPage = pathname.startsWith('/login');
 
   if (!user && !isLoginPage) {
     const loginUrl = request.nextUrl.clone();
