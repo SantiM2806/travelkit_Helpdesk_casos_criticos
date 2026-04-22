@@ -17,9 +17,24 @@ import {
 
 const CATEGORIAS = ALLOWED_CATEGORIAS;
 const PRIORIDADES = [
-  { value: 'Alta',  label: 'Alta',  hint: 'No puedo trabajar' },
-  { value: 'Media', label: 'Media', hint: 'Me afecta pero puedo continuar' },
-  { value: 'Baja',  label: 'Baja',  hint: 'Cuando puedan' },
+  {
+    value: 'Alta',  label: 'Alta',  hint: 'No puedo trabajar',
+    activeClass: 'border-[#D32F2F] bg-[#fff5f5]',
+    hoverClass:  'hover:border-[#D32F2F] hover:bg-[#fff5f5]',
+    textClass:   'text-[#D32F2F]',
+  },
+  {
+    value: 'Media', label: 'Media', hint: 'Me afecta pero puedo continuar',
+    activeClass: 'border-[#F57C00] bg-[#fff8f0]',
+    hoverClass:  'hover:border-[#F57C00] hover:bg-[#fff8f0]',
+    textClass:   'text-[#F57C00]',
+  },
+  {
+    value: 'Baja',  label: 'Baja',  hint: 'Cuando puedan',
+    activeClass: 'border-[#388E3C] bg-[#f0faf0]',
+    hoverClass:  'hover:border-[#388E3C] hover:bg-[#f0faf0]',
+    textClass:   'text-[#388E3C]',
+  },
 ];
 
 async function generarTicketId(): Promise<string> {
@@ -244,12 +259,12 @@ export default function SolicitudPage() {
                         onClick={() => setPrioridad(p.value)}
                         className={`flex flex-col items-center gap-1 px-3 py-3.5 rounded-xl border text-center transition-all duration-150 cursor-pointer ${
                           prioridad === p.value
-                            ? 'border-[#D32F2F] bg-[#fff5f5] shadow-sm'
-                            : 'border-[#ddd] bg-white hover:border-[#D32F2F]'
+                            ? `${p.activeClass} shadow-sm`
+                            : `border-[#ddd] bg-white ${p.hoverClass}`
                         }`}
                       >
                         <span className={`text-[13px] font-semibold ${
-                          prioridad === p.value ? 'text-[#D32F2F]' : 'text-[#333]'
+                          prioridad === p.value ? p.textClass : 'text-[#333]'
                         }`}>{p.label}</span>
                         <span className="text-[11px] text-[#999] leading-tight">{p.hint}</span>
                       </button>
