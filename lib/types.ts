@@ -8,6 +8,7 @@ export interface Ticket {
   estado: string;
   responsable: string | null;
   area?: string;
+  imagen_url?: string | null;
 }
 
 export type EstadoFilter    = 'Todos' | 'Abierto' | 'En proceso' | 'Resuelto' | 'Otra área';

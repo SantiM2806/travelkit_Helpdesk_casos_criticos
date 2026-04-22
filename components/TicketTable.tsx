@@ -94,7 +94,24 @@ export default function TicketTable({ filteredTickets, allTickets, isLoading }: 
                 style={{ transitionDelay: `${i * 30}ms` }}
               >
                 <td className="py-3 px-4 pl-5 font-mono text-xs text-tk-text2 whitespace-nowrap">
-                  {t.ticket_id || <span className="text-tk-text3">—</span>}
+                  <span className="inline-flex items-center gap-1.5">
+                    {t.ticket_id || <span className="text-tk-text3">—</span>}
+                    {t.imagen_url && (
+                      <a
+                        href={t.imagen_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        title="Ver imagen adjunta"
+                        onClick={e => e.stopPropagation()}
+                        className="text-tk-text3 hover:text-tk-accent2 transition-colors duration-[0.12s]"
+                      >
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="w-3 h-3">
+                          <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/>
+                          <polyline points="21 15 16 10 5 21"/>
+                        </svg>
+                      </a>
+                    )}
+                  </span>
                 </td>
                 <td className="py-3 px-4 text-[13px] text-tk-text whitespace-nowrap max-w-[220px] overflow-hidden text-ellipsis">
                   {t.email || <span className="text-tk-text3">—</span>}

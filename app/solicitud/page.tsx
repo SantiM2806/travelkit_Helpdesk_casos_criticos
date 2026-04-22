@@ -1,10 +1,11 @@
 'use client';
 
-import { useState, FormEvent } from 'react';
+import { useState, FormEvent, useRef, useCallback } from 'react';
 import Image from 'next/image';
 import { supabase } from '@/lib/supabase';
+import { uploadTicketImage, validateImageFile } from '@/lib/storage';
 
-const CATEGORIAS = ['Software', 'Hardware', 'Conectividad', 'Accesos', 'Teams', 'Correo', 'Otro'];
+const CATEGORIAS = ['Software', 'Hardware', 'Conectividad', 'Accesos', 'Teams', 'Correo'];
 const PRIORIDADES = [
   { value: 'Alta',  label: 'Alta',  hint: 'No puedo trabajar' },
   { value: 'Media', label: 'Media', hint: 'Me afecta pero puedo continuar' },
@@ -32,8 +33,40 @@ export default function SolicitudPage() {
   const [categoria,   setCategoria]   = useState('');
   const [prioridad,   setPrioridad]   = useState('');
   const [descripcion, setDescripcion] = useState('');
+  const [imageFile,   setImageFile]   = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [dragOver,    setDragOver]    = useState(false);
   const [loading,     setLoading]     = useState(false);
   const [error,       setError]       = useState('');
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFile = useCallback((file: File) => {
+    const err = validateImageFile(file);
+    if (err) { setError(err); return; }
+    setError('');
+    setImageFile(file);
+    const reader = new FileReader();
+    reader.onload = e => setImagePreview(e.target?.result as string);
+    reader.readAsDataURL(file);
+  }, []);
+
+  function onFileInput(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (file) handleFile(file);
+    e.target.value = '';
+  }
+
+  function onDrop(e: React.DragEvent) {
+    e.preventDefault();
+    setDragOver(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file) handleFile(file);
+  }
+
+  function removeImage() {
+    setImageFile(null);
+    setImagePreview(null);
+  }
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -46,6 +79,12 @@ export default function SolicitudPage() {
 
     try {
       const ticket_id = await generarTicketId();
+
+      let imagen_url: string | null = null;
+      if (imageFile) {
+        imagen_url = await uploadTicketImage(ticket_id, imageFile);
+      }
+
       const { error: dbError } = await supabase.from('tickets').insert({
         ticket_id,
         timestamp:   new Date().toISOString(),
@@ -55,6 +94,7 @@ export default function SolicitudPage() {
         descripcion: `[${nombre.trim()}] ${descripcion.trim()}`,
         estado:      'Abierto',
         responsable: null,
+        imagen_url,
       });
 
       if (dbError) throw dbError;
@@ -70,7 +110,9 @@ export default function SolicitudPage() {
   function resetForm() {
     setStep('form');
     setNombre(''); setEmail(''); setCategoria('');
-    setPrioridad(''); setDescripcion(''); setTicketId('');
+    setPrioridad(''); setDescripcion('');
+    setImageFile(null); setImagePreview(null);
+    setTicketId('');
   }
 
   return (
@@ -215,6 +257,73 @@ export default function SolicitudPage() {
                   <span className="text-right text-[11px] text-[#bbb]">{descripcion.length} caracteres</span>
                 </div>
 
+                {/* Imagen adjunta */}
+                <div className="flex flex-col gap-2">
+                  <label className="text-[13px] font-medium text-[#333] tracking-wide">
+                    Adjuntar imagen{' '}
+                    <span className="text-[#aaa] font-normal">(opcional · máx. 5 MB)</span>
+                  </label>
+
+                  {imagePreview ? (
+                    /* Preview */
+                    <div className="flex items-center gap-4 px-4 py-3 bg-[#fafafa] border border-[#ddd] rounded-xl">
+                      <img
+                        src={imagePreview}
+                        alt="preview"
+                        className="w-14 h-14 object-cover rounded-lg flex-shrink-0 border border-[#eee]"
+                      />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-[13px] text-[#333] font-medium truncate">{imageFile?.name}</p>
+                        <p className="text-[12px] text-[#999] mt-0.5">
+                          {imageFile ? (imageFile.size / 1024).toFixed(0) + ' KB' : ''}
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={removeImage}
+                        className="w-8 h-8 flex items-center justify-center rounded-lg border border-[#eee] text-[#aaa] hover:text-[#D32F2F] hover:border-[#D32F2F] transition-colors flex-shrink-0 cursor-pointer"
+                      >
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
+                          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                        </svg>
+                      </button>
+                    </div>
+                  ) : (
+                    /* Dropzone */
+                    <div
+                      onDragOver={e => { e.preventDefault(); setDragOver(true); }}
+                      onDragLeave={() => setDragOver(false)}
+                      onDrop={onDrop}
+                      onClick={() => fileInputRef.current?.click()}
+                      className={`flex flex-col items-center gap-2 px-6 py-6 border-2 border-dashed rounded-xl cursor-pointer transition-all duration-150 ${
+                        dragOver
+                          ? 'border-[#D32F2F] bg-[#fff5f5]'
+                          : 'border-[#ddd] hover:border-[#D32F2F] hover:bg-[#fafafa]'
+                      }`}
+                    >
+                      <svg viewBox="0 0 24 24" fill="none" stroke={dragOver ? '#D32F2F' : '#bbb'} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-7 h-7 transition-colors">
+                        <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/>
+                        <polyline points="21 15 16 10 5 21"/>
+                      </svg>
+                      <div className="text-center">
+                        <p className="text-[13px] text-[#666]">
+                          Arrastra una imagen aquí o{' '}
+                          <span className="text-[#D32F2F] font-medium underline">selecciona un archivo</span>
+                        </p>
+                        <p className="text-[12px] text-[#bbb] mt-0.5">JPG · PNG · GIF · WEBP</p>
+                      </div>
+                    </div>
+                  )}
+
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/jpeg,image/png,image/gif,image/webp"
+                    onChange={onFileInput}
+                    className="hidden"
+                  />
+                </div>
+
                 {/* Error */}
                 {error && (
                   <div className="flex items-start gap-3 bg-[#fff5f5] border border-[#fcc] rounded-xl px-4 py-3">
@@ -236,7 +345,7 @@ export default function SolicitudPage() {
                       <svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                         <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
                       </svg>
-                      Enviando solicitud…
+                      {imageFile ? 'Subiendo imagen…' : 'Enviando solicitud…'}
                     </>
                   ) : (
                     <>
@@ -261,7 +370,6 @@ export default function SolicitudPage() {
               <div className="h-1 bg-[#D32F2F]" />
               <div className="p-10 flex flex-col items-center gap-5">
 
-                {/* Check animado */}
                 <div className="w-16 h-16 rounded-full bg-[#fff5f5] border-2 border-[#D32F2F] flex items-center justify-center">
                   <svg viewBox="0 0 24 24" fill="none" stroke="#D32F2F" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-7 h-7">
                     <polyline points="20 6 9 17 4 12"/>
