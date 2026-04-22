@@ -5,6 +5,7 @@ import type { Ticket, EstadoFilter, PrioridadFilter, View, Theme, PendingMove, T
 import { MOCK_DATA } from '@/lib/data';
 import { normalizeEstado, getSyncTimeStr } from '@/lib/utils';
 import { supabase } from '@/lib/supabase';
+import { createSupabaseBrowser } from '@/lib/supabase-browser';
 
 import Header          from '@/components/Header';
 import ConfigBanner    from '@/components/ConfigBanner';
@@ -12,8 +13,9 @@ import StatsBar        from '@/components/StatsBar';
 import FiltersRow      from '@/components/FiltersRow';
 import TicketTable     from '@/components/TicketTable';
 import KanbanBoard     from '@/components/KanbanBoard';
-import Modal           from '@/components/Modal';
-import ToastContainer  from '@/components/ToastContainer';
+import Modal                from '@/components/Modal';
+import ToastContainer       from '@/components/ToastContainer';
+import NuevaSolicitudModal  from '@/components/NuevaSolicitudModal';
 
 const AUTO_REFRESH = 60; // segundos (0 = desactivado)
 
@@ -30,6 +32,9 @@ export default function Page() {
   const [theme,           setTheme]           = useState<Theme>('dark');
   const [toasts,          setToasts]          = useState<ToastItem[]>([]);
   const [syncTime,        setSyncTime]        = useState('—');
+  const [userName,        setUserName]        = useState('');
+  const [userEmail,       setUserEmail]       = useState('');
+  const [nuevaSolicitud,  setNuevaSolicitud]  = useState(false);
 
   const movementLog = useRef<MovementLog[]>([]);
   const loadingRef  = useRef(false);
@@ -91,6 +96,20 @@ export default function Page() {
     const saved = localStorage.getItem('tk-theme') as Theme | null;
     if (saved) setTheme(saved);
     loadData();
+
+    const auth = createSupabaseBrowser();
+    auth.auth.getUser().then(({ data }) => {
+      const meta = data.user?.user_metadata;
+      const email = data.user?.email || '';
+      const emailLocal = email.split('@')[0];
+      const nameFromEmail = emailLocal
+        .split('.')
+        .map((w: string) => w.charAt(0).toUpperCase() + w.slice(1))
+        .join(' ');
+      const name = meta?.full_name || meta?.name || nameFromEmail;
+      setUserName(name);
+      setUserEmail(email);
+    });
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   /* ── Auto-refresh ── */
@@ -189,6 +208,7 @@ export default function Page() {
         isLoading={isLoading}
         onSync={loadData}
         syncTime={syncTime}
+        userName={userName}
       />
 
       <ConfigBanner />
@@ -204,34 +224,49 @@ export default function Page() {
           <p className="text-[13px] text-tk-text2">No se pudo conectar con el Google Sheet.</p>
         </div>
 
-        {/* Filtros — solo en vista tabla */}
-        {currentView === 'table' && (
-          <FiltersRow
-            activeEstado={activeEstado}
-            activePrioridad={activePrioridad}
-            searchQuery={searchQuery}
-            onEstadoChange={setActiveEstado}
-            onPrioridadChange={setActivePrioridad}
-            onSearchChange={setSearchQuery}
-          />
-        )}
+        {/* Barra superior: filtros + botón nueva solicitud */}
+        <div className="flex items-start gap-3 mb-0">
+          <div className="flex-1">
+            {currentView === 'table' && (
+              <FiltersRow
+                activeEstado={activeEstado}
+                activePrioridad={activePrioridad}
+                searchQuery={searchQuery}
+                onEstadoChange={setActiveEstado}
+                onPrioridadChange={setActivePrioridad}
+                onSearchChange={setSearchQuery}
+              />
+            )}
+          </div>
+          <button
+            onClick={() => setNuevaSolicitud(true)}
+            className="flex items-center gap-1.5 px-3 py-[7px] bg-tk-accent text-[#0d0f11] font-mono text-[11px] font-semibold tracking-[0.06em] uppercase rounded cursor-pointer transition-opacity duration-[0.15s] hover:opacity-90 active:opacity-80 whitespace-nowrap flex-shrink-0"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-3 h-3">
+              <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+            NUEVA SOLICITUD
+          </button>
+        </div>
 
         {/* Vista tabla */}
-        {currentView === 'table' && (
-          <TicketTable
-            filteredTickets={filteredTickets}
-            allTickets={allTickets}
-            isLoading={isLoading}
-          />
-        )}
+        <div key={`view-${currentView}`} className="animate-fade-up">
+          {currentView === 'table' && (
+            <TicketTable
+              filteredTickets={filteredTickets}
+              allTickets={allTickets}
+              isLoading={isLoading}
+            />
+          )}
 
-        {/* Vista kanban */}
-        {currentView === 'kanban' && (
-          <KanbanBoard
-            allTickets={allTickets}
-            onMoveRequest={handleMoveRequest}
-          />
-        )}
+          {/* Vista kanban */}
+          {currentView === 'kanban' && (
+            <KanbanBoard
+              allTickets={allTickets}
+              onMoveRequest={handleMoveRequest}
+            />
+          )}
+        </div>
       </main>
 
       {/* Footer */}
@@ -254,6 +289,17 @@ export default function Page() {
 
       {/* Toasts */}
       <ToastContainer toasts={toasts} />
+
+      {/* Modal nueva solicitud */}
+      <NuevaSolicitudModal
+        open={nuevaSolicitud}
+        userEmail={userEmail}
+        onClose={() => setNuevaSolicitud(false)}
+        onCreated={() => {
+          loadData();
+          showToast('Solicitud registrada correctamente en el sistema.');
+        }}
+      />
     </>
   );
 }

@@ -45,20 +45,18 @@ export default function TicketTable({ filteredTickets, allTickets, isLoading }: 
           </tr>
         </thead>
         <tbody ref={tbodyRef}>
-          {/* Loading */}
-          {showLoading && (
-            <tr>
-              <td colSpan={7} className="py-14 text-center border-b-0">
-                <div className="flex gap-[5px] items-center justify-center">
-                  <span className="loading-dot w-[7px] h-[7px] rounded-full bg-tk-accent animate-dot-bounce" />
-                  <span className="loading-dot w-[7px] h-[7px] rounded-full bg-tk-accent animate-dot-bounce" />
-                  <span className="loading-dot w-[7px] h-[7px] rounded-full bg-tk-accent animate-dot-bounce" />
-                </div>
-                <div className="font-mono text-[12px] font-semibold tracking-[0.08em] uppercase text-tk-text3 mt-3">Cargando tickets</div>
-                <div className="text-[12px] text-tk-text3 mt-1">Conectando con el Sheet…</div>
-              </td>
+          {/* Skeleton loading */}
+          {showLoading && Array.from({ length: 7 }).map((_, i) => (
+            <tr key={i} className="border-b border-tk-border last:border-b-0" style={{ opacity: 1 - i * 0.1 }}>
+              <td className="py-3 px-4 pl-5"><div className="skeleton-cell h-3 w-16" /></td>
+              <td className="py-3 px-4"><div className="skeleton-cell h-3" style={{ width: `${100 + (i % 3) * 40}px` }} /></td>
+              <td className="py-3 px-4 hidden md:table-cell"><div className="skeleton-cell h-5 w-20 rounded-full" /></td>
+              <td className="py-3 px-4"><div className="skeleton-cell h-5 w-14 rounded-full" /></td>
+              <td className="py-3 px-4 hidden md:table-cell"><div className="skeleton-cell h-3" style={{ width: `${160 + (i % 4) * 30}px` }} /></td>
+              <td className="py-3 px-4"><div className="skeleton-cell h-5 w-20 rounded-full" /></td>
+              <td className="py-3 px-4 pr-5 hidden md:table-cell"><div className="skeleton-cell h-3 w-20" /></td>
             </tr>
-          )}
+          ))}
 
           {/* Sin tickets */}
           {showEmpty && (

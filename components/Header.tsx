@@ -1,7 +1,9 @@
 'use client';
 
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import type { Theme, View } from '@/lib/types';
+import { createSupabaseBrowser } from '@/lib/supabase-browser';
 
 interface HeaderProps {
   currentView: View;
@@ -11,6 +13,7 @@ interface HeaderProps {
   isLoading: boolean;
   onSync: () => void;
   syncTime: string;
+  userName?: string;
 }
 
 const SUN_ICON = (
@@ -29,7 +32,24 @@ const MOON_ICON = (
   </svg>
 );
 
-export default function Header({ currentView, onViewChange, theme, onThemeToggle, isLoading, onSync, syncTime }: HeaderProps) {
+const LOGOUT_ICON = (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-[13px] h-[13px] flex-shrink-0">
+    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+    <polyline points="16 17 21 12 16 7"/>
+    <line x1="21" y1="12" x2="9" y2="12"/>
+  </svg>
+);
+
+export default function Header({ currentView, onViewChange, theme, onThemeToggle, isLoading, onSync, syncTime, userName }: HeaderProps) {
+  const router = useRouter();
+
+  async function handleLogout() {
+    const supabase = createSupabaseBrowser();
+    await supabase.auth.signOut();
+    router.push('/login');
+    router.refresh();
+  }
+
   return (
     <header className="sticky top-0 z-[100] h-14 bg-tk-bg2 border-b border-tk-border flex items-center px-8 gap-4">
       {/* Logo */}
@@ -97,6 +117,23 @@ export default function Header({ currentView, onViewChange, theme, onThemeToggle
         >
           {theme === 'dark' ? SUN_ICON : MOON_ICON}
         </button>
+
+        {/* Usuario + Logout */}
+        {userName && (
+          <div className="flex items-center gap-2 border-l border-tk-border2 pl-3 ml-1">
+            <span className="font-mono text-[11px] text-tk-text2 tracking-[0.04em] whitespace-nowrap">
+              {userName}
+            </span>
+            <button
+              onClick={handleLogout}
+              title="Cerrar sesión"
+              className="flex items-center gap-1 px-2 py-[5px] bg-transparent border border-tk-border2 rounded text-tk-text3 font-mono text-[10px] tracking-[0.06em] uppercase cursor-pointer transition-[border-color,color,background] duration-[0.15s] hover:border-tk-red hover:text-tk-red hover:bg-[rgba(239,83,80,0.06)]"
+            >
+              {LOGOUT_ICON}
+              SALIR
+            </button>
+          </div>
+        )}
 
         {/* Sync button */}
         <button

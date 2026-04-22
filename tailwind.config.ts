@@ -45,6 +45,8 @@ const config: Config = {
         'shimmer-drop': 'shimmerDrop 1.2s ease-in-out infinite',
         'toast-in':     'toastIn 0.25s cubic-bezier(0.22,1,0.36,1) forwards',
         'toast-out':    'toastOut 0.28s ease forwards',
+        'fade-up':      'fadeUp 0.38s cubic-bezier(0.22,1,0.36,1) forwards',
+        'fade-in':      'fadeIn 0.25s ease forwards',
       },
     },
   },

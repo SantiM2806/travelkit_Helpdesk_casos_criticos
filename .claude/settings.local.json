@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep -E '\\\\.\\(tsx|ts\\)$')",
+      "Bash(grep -E '\\\\.\\(ts|tsx\\)$')",
+      "Bash(npm install *)",
+      "Bash(npm list *)",
+      "WebFetch(domain:oficial.travelkit.us)",
+      "Bash(npx tsc *)",
+      "Bash(npm run *)"
+    ]
+  }
+}
