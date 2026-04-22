@@ -1,6 +1,9 @@
 import type { Metadata } from 'next';
-import { IBM_Plex_Sans, IBM_Plex_Mono } from 'next/font/google';
+import { IBM_Plex_Sans, IBM_Plex_Mono, Geist } from 'next/font/google';
 import './globals.css';
+import { cn } from "@/lib/utils";
+
+const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 
 const ibmSans = IBM_Plex_Sans({
   subsets: ['latin'],
@@ -26,7 +29,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html
       lang="es"
       suppressHydrationWarning
-      className={`${ibmSans.variable} ${ibmMono.variable}`}
+      className={cn(ibmSans.variable, ibmMono.variable, "font-sans", geist.variable)}
     >
       {/* Aplica el tema guardado antes del primer paint para evitar flash */}
       <head>
