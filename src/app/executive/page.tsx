@@ -1,7 +1,9 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
+import { createSupabaseBrowser } from '@/lib/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid } from "recharts";
@@ -87,6 +89,29 @@ const chartConfigIssues = {
 
 export default function ExecutiveDashboard() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [userName, setUserName] = useState('');
+  const router = useRouter();
+
+  useEffect(() => {
+    const supabase = createSupabaseBrowser();
+    supabase.auth.getUser().then(({ data }) => {
+      const meta = data.user?.user_metadata;
+      const email = data.user?.email || '';
+      const emailLocal = email.split('@')[0];
+      const nameFromEmail = emailLocal
+        .split('.')
+        .map((w: string) => w.charAt(0).toUpperCase() + w.slice(1))
+        .join(' ');
+      setUserName(meta?.full_name || meta?.name || nameFromEmail);
+    });
+  }, []);
+
+  async function handleLogout() {
+    const supabase = createSupabaseBrowser();
+    await supabase.auth.signOut();
+    router.push('/login');
+    router.refresh();
+  }
 
   return (
     <div className="min-h-screen bg-[#fafafa] text-[#1a1a1a] font-sans flex relative overflow-hidden">
@@ -150,6 +175,28 @@ export default function ExecutiveDashboard() {
             <div className="text-[13px] text-[#888] hidden sm:block">
               Portal de soporte interno
             </div>
+          </div>
+
+          <div className="ml-auto flex items-center gap-2 md:gap-3">
+            {userName && (
+              <>
+                <span className="text-[13px] text-[#555] hidden md:block whitespace-nowrap">
+                  {userName}
+                </span>
+                <div className="w-px h-5 bg-[#e8e8e8]" />
+              </>
+            )}
+            <button
+              onClick={handleLogout}
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-[#ddd] rounded-lg text-[#666] text-[13px] font-medium hover:border-[#D32F2F] hover:text-[#D32F2F] hover:bg-[#fff5f5] transition-all duration-150 cursor-pointer"
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 flex-shrink-0">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                <polyline points="16 17 21 12 16 7"/>
+                <line x1="21" y1="12" x2="9" y2="12"/>
+              </svg>
+              <span className="hidden sm:inline">Salir</span>
+            </button>
           </div>
         </header>
 

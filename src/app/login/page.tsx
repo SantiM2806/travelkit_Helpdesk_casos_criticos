@@ -7,10 +7,10 @@ import { createSupabaseBrowser } from '@/lib/supabase/client';
 
 export default function LoginPage() {
   const router = useRouter();
-  const [email, setEmail]       = useState('');
+  const [email,    setEmail]    = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError]       = useState('');
-  const [loading, setLoading]   = useState(false);
+  const [error,    setError]    = useState('');
+  const [loading,  setLoading]  = useState(false);
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -18,44 +18,51 @@ export default function LoginPage() {
     setLoading(true);
 
     const supabase = createSupabaseBrowser();
-    const { error: authError } = await supabase.auth.signInWithPassword({ email, password });
+    const { data, error: authError } = await supabase.auth.signInWithPassword({ email, password });
 
     if (authError) {
-      setError('Correo o contraseña incorrectos.');
+      setError('Correo o contraseña incorrectos. Verifica tus datos e intenta de nuevo.');
       setLoading(false);
       return;
     }
 
-    router.push('/');
+    const role = data.user?.user_metadata?.role;
+    router.push(role === 'executive' ? '/executive' : '/');
     router.refresh();
   }
 
   return (
-    <div className="min-h-screen bg-tk-bg flex flex-col items-center justify-center px-4 animate-fade-in">
-      {/* Card */}
-      <div className="w-full max-w-[380px] bg-tk-bg2 border border-tk-border rounded-lg overflow-hidden animate-fade-up">
+    <div className="min-h-screen bg-[#f5f5f5] font-sans flex flex-col items-center justify-center px-4">
 
-        {/* Header de la card */}
-        <div className="px-6 sm:px-8 pt-7 sm:pt-8 pb-5 sm:pb-6 border-b border-tk-border flex flex-col items-center gap-3">
+      {/* Card */}
+      <div className="w-full max-w-[400px] bg-white border border-[#ebebeb] rounded-2xl shadow-sm overflow-hidden">
+
+        {/* Header */}
+        <div className="px-8 pt-8 pb-6 border-b border-[#f0f0f0] flex flex-col items-center gap-4">
           <Image
             src="/travelkit-logo_nbtjgf-67feae5fe38949.68302424.png"
             alt="Travelkit"
-            width={110}
-            height={34}
+            width={120}
+            height={36}
             className="h-8 w-auto object-contain"
             priority
           />
-          <div className="font-mono text-[11px] font-semibold tracking-[0.1em] text-tk-text3 uppercase">
-            <span className="text-tk-accent">IT</span> / HELPDESK · ACCESO
+          <div className="text-center">
+            <h1 className="text-[18px] font-semibold text-[#1a1a1a] leading-tight">
+              Portal de Soporte IT
+            </h1>
+            <p className="text-[13px] text-[#888] mt-0.5">
+              Ingresa con tus credenciales corporativas
+            </p>
           </div>
         </div>
 
-        {/* Formulario */}
-        <form onSubmit={handleSubmit} className="px-6 sm:px-8 py-6 sm:py-7 flex flex-col gap-5">
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="px-8 py-7 flex flex-col gap-5">
 
-          {/* Campo email */}
+          {/* Email */}
           <div className="flex flex-col gap-1.5">
-            <label className="font-mono text-[10px] tracking-[0.08em] uppercase text-tk-text3">
+            <label className="text-[13px] font-medium text-[#444] tracking-wide">
               Correo corporativo
             </label>
             <input
@@ -65,13 +72,13 @@ export default function LoginPage() {
               required
               autoComplete="email"
               placeholder="nombre@travelkit.co"
-              className="search-input w-full bg-tk-bg3 border border-tk-border2 rounded px-3 py-2 text-[13px] text-tk-text font-sans placeholder:text-tk-text3 focus:outline-none focus:border-tk-accent2 transition-colors duration-[0.12s]"
+              className="w-full px-4 py-3 bg-[#fafafa] border border-[#ddd] rounded-xl text-[14px] text-[#1a1a1a] placeholder:text-[#bbb] outline-none transition-all duration-150 focus:border-[#D32F2F] focus:bg-white focus:shadow-[0_0_0_3px_rgba(211,47,47,0.08)]"
             />
           </div>
 
-          {/* Campo contraseña */}
+          {/* Contraseña */}
           <div className="flex flex-col gap-1.5">
-            <label className="font-mono text-[10px] tracking-[0.08em] uppercase text-tk-text3">
+            <label className="text-[13px] font-medium text-[#444] tracking-wide">
               Contraseña
             </label>
             <input
@@ -81,45 +88,57 @@ export default function LoginPage() {
               required
               autoComplete="current-password"
               placeholder="••••••••"
-              className="search-input w-full bg-tk-bg3 border border-tk-border2 rounded px-3 py-2 text-[13px] text-tk-text font-sans placeholder:text-tk-text3 focus:outline-none focus:border-tk-accent2 transition-colors duration-[0.12s]"
+              className="w-full px-4 py-3 bg-[#fafafa] border border-[#ddd] rounded-xl text-[14px] text-[#1a1a1a] placeholder:text-[#bbb] outline-none transition-all duration-150 focus:border-[#D32F2F] focus:bg-white focus:shadow-[0_0_0_3px_rgba(211,47,47,0.08)]"
             />
           </div>
 
           {/* Error */}
           {error && (
-            <div className="bg-[rgba(239,83,80,0.06)] border border-[rgba(239,83,80,0.25)] rounded px-3 py-2">
-              <p className="font-mono text-[11px] text-tk-red tracking-[0.04em]">{error}</p>
+            <div className="flex items-start gap-3 bg-[#fff5f5] border border-[#fcc] rounded-xl px-4 py-3">
+              <svg viewBox="0 0 24 24" fill="none" stroke="#D32F2F" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 mt-0.5 flex-shrink-0">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="12" y1="8" x2="12" y2="12"/>
+                <line x1="12" y1="16" x2="12.01" y2="16"/>
+              </svg>
+              <p className="text-[13px] text-[#c00] leading-relaxed">{error}</p>
             </div>
           )}
 
-          {/* Botón */}
+          {/* Submit */}
           <button
             type="submit"
             disabled={loading}
-            className="mt-1 w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-tk-accent text-[#0d0f11] font-mono text-[11px] font-semibold tracking-[0.08em] uppercase rounded transition-[opacity,background] duration-[0.15s] hover:opacity-90 active:opacity-80 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+            className="mt-1 w-full flex items-center justify-center gap-2.5 py-3.5 bg-[#D32F2F] hover:bg-[#b71c1c] active:bg-[#9a1616] text-white font-semibold text-[15px] rounded-xl transition-all duration-150 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
           >
             {loading ? (
               <>
-                <span className="inline-block w-3 h-3 border-2 border-[#0d0f11] border-t-transparent rounded-full animate-spin-sync" />
-                VERIFICANDO
+                <svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
+                </svg>
+                Verificando credenciales…
               </>
             ) : (
-              'INGRESAR AL SISTEMA'
+              <>
+                <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                </svg>
+                Ingresar al sistema
+              </>
             )}
           </button>
         </form>
 
-        {/* Footer de la card */}
-        <div className="px-6 sm:px-8 pb-5 sm:pb-6 text-center">
-          <p className="font-mono text-[10px] text-tk-text3 tracking-[0.04em]">
+        {/* Footer */}
+        <div className="px-8 pb-6 text-center">
+          <p className="text-[12px] text-[#aaa]">
             Acceso restringido · Solo personal IT autorizado
           </p>
         </div>
       </div>
 
-      {/* Marca de agua inferior */}
-      <p className="mt-6 font-mono text-[10px] tracking-[0.08em] uppercase text-tk-text3">
-        Travelkit Colombia · Sistema interno
+      <p className="mt-6 text-[12px] text-[#bbb]">
+        Travelkit Colombia · Sistema interno · {new Date().getFullYear()}
       </p>
     </div>
   );

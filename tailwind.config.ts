@@ -7,8 +7,8 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['IBM Plex Sans', 'sans-serif'],
-        mono: ['IBM Plex Mono', 'monospace'],
+        sans: ['var(--font-sans)', 'IBM Plex Sans', 'sans-serif'],
+        mono: ['var(--font-ibm-mono)', 'IBM Plex Mono', 'monospace'],
       },
       colors: {
         'tk-bg':        'var(--bg)',
