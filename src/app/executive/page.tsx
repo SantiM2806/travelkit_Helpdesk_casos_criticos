@@ -111,14 +111,17 @@ export default function ExecutiveDashboard() {
         { title: "Herramienta Crítica",      value: herramientaCritica, description: "Con más reportes de falla" },
       ]);
 
-      // ── Distribución IT area (dona) ───────────────────────────────────────
+      // ── Distribución por área de empresa (dona) ───────────────────────────
       const areaCounts: Record<string, number> = {};
-      all.forEach(t => { const k = t.area || 'Sin área'; areaCounts[k] = (areaCounts[k] || 0) + 1; });
-      setAreaDist(Object.entries(areaCounts).map(([area, tickets], i) => ({ area, tickets, fill: AREA_COLORS[i % AREA_COLORS.length] })));
+      all.forEach(t => { const k = t.department || t.area || 'Sin área'; areaCounts[k] = (areaCounts[k] || 0) + 1; });
+      setAreaDist(Object.entries(areaCounts).sort((a, b) => b[1] - a[1]).map(([area, tickets], i) => ({ area, tickets, fill: AREA_COLORS[i % AREA_COLORS.length] })));
 
-      // ── Distribución empresa (department) ────────────────────────────────
+      // ── Estado por área de empresa (barras) ───────────────────────────────
       const deptCounts: Record<string, number> = {};
-      all.forEach(t => { const k = t.department || 'Sin área'; deptCounts[k] = (deptCounts[k] || 0) + 1; });
+      all.filter(t => t.estado?.toLowerCase().includes('proceso')).forEach(t => {
+        const k = t.department || t.area || 'Sin área';
+        deptCounts[k] = (deptCounts[k] || 0) + 1;
+      });
       setDeptDist(Object.entries(deptCounts).sort((a, b) => b[1] - a[1]).map(([dept, tickets], i) => ({ dept, tickets, fill: AREA_COLORS[i % AREA_COLORS.length] })));
 
       // ── Top 5 problemas (categoría) ───────────────────────────────────────
@@ -284,8 +287,8 @@ export default function ExecutiveDashboard() {
               <Card className="bg-white border-[#ebebeb] rounded-2xl shadow-sm overflow-hidden">
                 <CardHeader className="flex flex-row items-center justify-between border-b border-[#f5f5f5] px-6 py-5">
                   <div>
-                    <CardTitle className="text-[15px] font-semibold text-[#1a1a1a]">Distribución por Área IT</CardTitle>
-                    <CardDescription className="text-[13px] text-[#888] mt-0.5">Área responsable de los tickets</CardDescription>
+                    <CardTitle className="text-[15px] font-semibold text-[#1a1a1a]">Distribución por Área</CardTitle>
+                    <CardDescription className="text-[13px] text-[#888] mt-0.5">Tickets según el área de empresa que los genera</CardDescription>
                   </div>
                 </CardHeader>
                 <CardContent className="p-6">
@@ -331,8 +334,8 @@ export default function ExecutiveDashboard() {
 
               <Card className="bg-white border-[#ebebeb] rounded-2xl shadow-sm overflow-hidden">
                 <CardHeader className="border-b border-[#f5f5f5] px-6 py-5">
-                  <CardTitle className="text-[15px] font-semibold text-[#1a1a1a]">Tickets por Área de Empresa</CardTitle>
-                  <CardDescription className="text-[13px] text-[#888] mt-0.5">Volumen según el área que genera la solicitud</CardDescription>
+                  <CardTitle className="text-[15px] font-semibold text-[#1a1a1a]">En Proceso por Área</CardTitle>
+                  <CardDescription className="text-[13px] text-[#888] mt-0.5">Tickets actualmente en atención por área de empresa</CardDescription>
                 </CardHeader>
                 <CardContent className="p-6">
                   {deptDist.length === 0
