@@ -225,14 +225,14 @@ function KanbanCard({ ticket, onPointerDown }: KanbanCardProps) {
         <span className={priBadge.cls}>{priBadge.label}</span>
       </div>
 
-      {/* Email */}
+      {/* Solicitante */}
       <div className="text-xs text-tk-text2 mb-[5px] whitespace-nowrap overflow-hidden text-ellipsis">
-        {ticket.email}
+        {ticket.full_name || ticket.email}
       </div>
 
-      {/* Description */}
+      {/* Asunto / Descripción */}
       <div className="card-desc text-xs text-tk-text leading-[1.5] mb-2.5">
-        {ticket.descripcion}
+        {ticket.subject || ticket.descripcion}
       </div>
 
       {/* Bottom */}

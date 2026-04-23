@@ -32,7 +32,7 @@ export default function TicketTable({ filteredTickets, allTickets, isLoading }: 
       <table className="w-full border-collapse text-[13px]">
         <thead>
           <tr>
-            {['Ticket ID', 'Email', 'Categoría', 'Prioridad', 'Descripción', 'Estado', 'Fecha'].map((h, i) => (
+            {['Ticket ID', 'Solicitante', 'Categoría', 'Prioridad', 'Asunto', 'Estado', 'Fecha'].map((h, i) => (
               <th
                 key={h}
                 className={`font-mono text-[10px] font-semibold tracking-[0.12em] uppercase text-tk-text3 py-3 px-4 text-left bg-tk-bg2 border-b border-tk-border whitespace-nowrap select-none first:pl-5 last:pr-5 ${
@@ -114,7 +114,7 @@ export default function TicketTable({ filteredTickets, allTickets, isLoading }: 
                   </span>
                 </td>
                 <td className="py-3 px-4 text-[13px] text-tk-text whitespace-nowrap max-w-[220px] overflow-hidden text-ellipsis">
-                  {t.email || <span className="text-tk-text3">—</span>}
+                  {t.full_name || t.email || <span className="text-tk-text3">—</span>}
                 </td>
                 <td className="py-3 px-4 hidden md:table-cell">
                   {catBadge
@@ -126,7 +126,7 @@ export default function TicketTable({ filteredTickets, allTickets, isLoading }: 
                   <span className={priBadge.cls}>{priBadge.label}</span>
                 </td>
                 <td className="py-3 px-4 text-xs text-tk-text2 max-w-[280px] overflow-hidden text-ellipsis whitespace-nowrap hidden md:table-cell">
-                  {t.descripcion || <span className="text-tk-text3">—</span>}
+                  {t.subject || t.descripcion || <span className="text-tk-text3">—</span>}
                 </td>
                 <td className="py-3 px-4">
                   <span className={estBadge.cls}>

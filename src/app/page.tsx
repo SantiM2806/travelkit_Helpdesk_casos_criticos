@@ -168,14 +168,17 @@ export default function Page() {
     setPendingMove(null);
 
     /* Guardar en base de datos de Supabase */
-    const { error } = await supabase
-      .from('tickets')
-      .update({
-        estado: toEstado,
-        responsable,
-        ...(area ? { area } : {})
-      })
-      .eq('ticket_id', ticketId);
+    const [{ error }, { error: movError }] = await Promise.all([
+      supabase
+        .from('tickets')
+        .update({ estado: toEstado, responsable, ...(area ? { area } : {}) })
+        .eq('ticket_id', ticketId),
+      supabase
+        .from('ticket_movements')
+        .insert({ ticket_id: ticketId, de: fromEstado, a: toEstado, responsable, area: area || null, accion }),
+    ]);
+
+    if (movError) console.warn('Movement log error:', movError.message);
 
     if (error) {
       console.error("Error al actualizar estado en supabase: ", error);
