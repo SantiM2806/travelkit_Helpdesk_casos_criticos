@@ -8,9 +8,10 @@ interface TicketTableProps {
   filteredTickets: Ticket[];
   allTickets:      Ticket[];
   isLoading:       boolean;
+  onTicketClick:   (ticket: Ticket) => void;
 }
 
-export default function TicketTable({ filteredTickets, allTickets, isLoading }: TicketTableProps) {
+export default function TicketTable({ filteredTickets, allTickets, isLoading, onTicketClick }: TicketTableProps) {
   const tbodyRef = useRef<HTMLTableSectionElement>(null);
 
   /* Animación stagger en filas */
@@ -90,7 +91,8 @@ export default function TicketTable({ filteredTickets, allTickets, isLoading }: 
             return (
               <tr
                 key={t.ticket_id}
-                className="ticket-row border-b border-tk-border last:border-b-0 hover:bg-tk-bg3 cursor-default"
+                onClick={() => onTicketClick(t)}
+                className="ticket-row border-b border-tk-border last:border-b-0 hover:bg-tk-bg3 cursor-pointer"
                 style={{ transitionDelay: `${i * 30}ms` }}
               >
                 <td className="py-3 px-4 pl-5 font-mono text-xs text-tk-text2 whitespace-nowrap">

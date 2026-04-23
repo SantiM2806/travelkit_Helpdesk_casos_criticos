@@ -7,6 +7,7 @@ import { normalizeEstado, badgePrioridad, badgeCat } from '@/features/tickets/ut
 interface KanbanBoardProps {
   allTickets:    Ticket[];
   onMoveRequest: (ticketId: string, fromEstado: string, toEstado: string) => void;
+  onTicketClick: (ticket: Ticket) => void;
 }
 
 interface DragState {
@@ -31,8 +32,10 @@ const COLS = [
   { estado: 'Otra área',  norm: 'otrarea',  colorCls: 'text-tk-violet', dotCls: 'bg-tk-violet', id: 'kCol-Otra área'  },
 ];
 
-export default function KanbanBoard({ allTickets, onMoveRequest }: KanbanBoardProps) {
-  const dragStateRef = useRef<DragState | null>(null);
+export default function KanbanBoard({ allTickets, onMoveRequest, onTicketClick }: KanbanBoardProps) {
+  const dragStateRef    = useRef<DragState | null>(null);
+  const onTicketClickRef = useRef(onTicketClick);
+  onTicketClickRef.current = onTicketClick;
 
   const byEstado: Record<string, Ticket[]> = {
     'Abierto': [], 'En proceso': [], 'Resuelto': [], 'Otra área': [],
@@ -157,6 +160,10 @@ export default function KanbanBoard({ allTickets, onMoveRequest }: KanbanBoardPr
       if (ticket && ticket.estado !== targetEstado) {
         onMoveRequest(ds.ticketId, ticket.estado, targetEstado);
       }
+    } else if (!ds.activated) {
+      // Click simple — abrir detalle
+      const ticket = allTickets.find(t => t.ticket_id === ds.ticketId);
+      if (ticket) onTicketClickRef.current(ticket);
     }
 
     dragStateRef.current = null;

@@ -16,6 +16,7 @@ import KanbanBoard     from '@/features/tickets/components/KanbanBoard';
 import Modal                from '@/components/common/Modal';
 import ToastContainer       from '@/components/common/ToastContainer';
 import NuevaSolicitudModal  from '@/features/tickets/components/NuevaSolicitudModal';
+import TicketDetailModal    from '@/features/tickets/components/TicketDetailModal';
 
 const AUTO_REFRESH = 60; // segundos (0 = desactivado)
 
@@ -35,6 +36,7 @@ export default function Page() {
   const [userName,        setUserName]        = useState('');
   const [userEmail,       setUserEmail]       = useState('');
   const [nuevaSolicitud,  setNuevaSolicitud]  = useState(false);
+  const [selectedTicket,  setSelectedTicket]  = useState<Ticket | null>(null);
 
   const movementLog = useRef<MovementLog[]>([]);
   const loadingRef  = useRef(false);
@@ -178,7 +180,7 @@ export default function Page() {
         .insert({ ticket_id: ticketId, de: fromEstado, a: toEstado, responsable, area: area || null, accion }),
     ]);
 
-    if (movError) console.warn('Movement log error:', movError.message);
+    if (movError) console.error('❌ ticket_movements insert error:', movError);
 
     if (error) {
       console.error("Error al actualizar estado en supabase: ", error);
@@ -259,6 +261,7 @@ export default function Page() {
               filteredTickets={filteredTickets}
               allTickets={allTickets}
               isLoading={isLoading}
+              onTicketClick={setSelectedTicket}
             />
           )}
 
@@ -267,6 +270,7 @@ export default function Page() {
             <KanbanBoard
               allTickets={allTickets}
               onMoveRequest={handleMoveRequest}
+              onTicketClick={setSelectedTicket}
             />
           )}
         </div>
@@ -292,6 +296,12 @@ export default function Page() {
 
       {/* Toasts */}
       <ToastContainer toasts={toasts} />
+
+      {/* Detalle de ticket */}
+      <TicketDetailModal
+        ticket={selectedTicket}
+        onClose={() => setSelectedTicket(null)}
+      />
 
       {/* Modal nueva solicitud */}
       <NuevaSolicitudModal

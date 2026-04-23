@@ -63,7 +63,7 @@ export default function Modal({ pendingMove, onClose, onConfirm }: ModalProps) {
               Confirmar movimiento
             </div>
             <div className="text-[12px] text-tk-text3 mt-[3px]">
-              Solo en memoria · no persiste al recargar
+              Se registrará en el historial del pipeline
             </div>
           </div>
           <button
