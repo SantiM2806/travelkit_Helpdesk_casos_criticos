@@ -5,7 +5,7 @@ const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const SUPABASE_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
 // Public routes: no auth required (accessible to all corporate employees)
-const PUBLIC_PATHS = ['/solicitud'];
+const PUBLIC_PATHS = ['/solicitud', '/auth/callback', '/auth/reset-password'];
 
 export async function middleware(request: NextRequest) {
   if (!SUPABASE_URL || !SUPABASE_KEY) {
