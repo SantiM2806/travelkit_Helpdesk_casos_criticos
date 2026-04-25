@@ -188,6 +188,19 @@ export default function SolicitudPage() {
       }
       setTicketId(ticket_id);
       setStep('success');
+
+      // Enviar correo de confirmación (no bloquea el flujo si falla)
+      fetch('/api/send-ticket-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email:     sanitize(email).toLowerCase(),
+          full_name: sanitize(nombre),
+          ticket_id,
+          urgency,
+          subject:   sanitize(asunto),
+        }),
+      }).catch(() => null);
     } catch (err) {
       console.error('❌ Error al registrar solicitud:', err);
       setError('No pudimos registrar tu solicitud. Intenta de nuevo o escríbenos al canal de IT.');
