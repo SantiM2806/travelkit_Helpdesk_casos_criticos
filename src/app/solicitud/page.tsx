@@ -197,7 +197,7 @@ export default function SolicitudPage() {
           email:     sanitize(email).toLowerCase(),
           full_name: sanitize(nombre),
           ticket_id,
-          urgency,
+          urgency:   urgencia,
           subject:   sanitize(asunto),
         }),
       }).catch(() => null);
