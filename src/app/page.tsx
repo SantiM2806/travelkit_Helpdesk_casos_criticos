@@ -1,27 +1,214 @@
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
+import Link from 'next/link';
+import Image from 'next/image';
 import type { Ticket, EstadoFilter, PrioridadFilter, View, Theme, PendingMove, ToastItem, MovementLog } from '@/features/tickets/types';
 import { MOCK_DATA } from '@/features/tickets/actions/ticket.actions';
 import { normalizeEstado, getSyncTimeStr } from '@/features/tickets/utils/formatters';
 import { supabase } from '@/lib/supabase/server';
 import { createSupabaseBrowser } from '@/lib/supabase/client';
 
-import Header          from '@/components/layout/Header';
-import ConfigBanner    from '@/components/layout/ConfigBanner';
-import StatsBar        from '@/features/tickets/components/StatsBar';
-import FiltersRow      from '@/features/tickets/components/FiltersRow';
-import TicketTable     from '@/features/tickets/components/TicketTable';
-import KanbanBoard     from '@/features/tickets/components/KanbanBoard';
-import Modal                from '@/components/common/Modal';
-import ToastContainer       from '@/components/common/ToastContainer';
-import NuevaSolicitudModal  from '@/features/tickets/components/NuevaSolicitudModal';
-import TicketDetailModal    from '@/features/tickets/components/TicketDetailModal';
+import Header         from '@/components/layout/Header';
+import ConfigBanner   from '@/components/layout/ConfigBanner';
+import StatsBar       from '@/features/tickets/components/StatsBar';
+import FiltersRow     from '@/features/tickets/components/FiltersRow';
+import TicketTable    from '@/features/tickets/components/TicketTable';
+import KanbanBoard    from '@/features/tickets/components/KanbanBoard';
+import Modal          from '@/components/common/Modal';
+import ToastContainer from '@/components/common/ToastContainer';
+import NuevaSolicitudModal from '@/features/tickets/components/NuevaSolicitudModal';
+import TicketDetailModal   from '@/features/tickets/components/TicketDetailModal';
 
-const AUTO_REFRESH = 60; // segundos (0 = desactivado)
+const AUTO_REFRESH = 60;
 
+/* ══════════════════════════════════════════════════
+   HUB — Panel de selección para admin
+══════════════════════════════════════════════════ */
+const HUB_MODULES = [
+  {
+    href: '/solicitud',
+    label: 'Web de Solicitud',
+    description: 'Reporta fallas, solicita accesos y adjunta evidencia. Disponible para todos los empleados.',
+    badge: 'Acceso público',
+    badgeColor: '#2e7d32',
+    badgeBg: '#f0faf0',
+    badgeBorder: '#c8e6c9',
+    accentColor: '#2e7d32',
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className="w-7 h-7">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+        <polyline points="14 2 14 8 20 8"/>
+        <line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/>
+      </svg>
+    ),
+  },
+  {
+    href: '/?view=pipeline',
+    label: 'Web de Pipeline',
+    description: 'Gestiona el flujo de tickets en tabla o Kanban, actualiza estados y monitorea en tiempo real.',
+    badge: 'Equipo IT',
+    badgeColor: '#1565c0',
+    badgeBg: '#f0f5ff',
+    badgeBorder: '#bbdefb',
+    accentColor: '#1565c0',
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className="w-7 h-7">
+        <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+        <rect x="3" y="14" width="7" height="7" rx="1"/>
+        <path d="M17.5 14v3m0 0v3m0-3h3m-3 0h-3"/>
+      </svg>
+    ),
+  },
+  {
+    href: '/executive',
+    label: 'Web Executive',
+    description: 'Dashboard con KPIs, SLA promedio, gráficos por área y categorías críticas.',
+    badge: 'Alta gerencia',
+    badgeColor: '#6a1b9a',
+    badgeBg: '#faf0ff',
+    badgeBorder: '#e1bee7',
+    accentColor: '#6a1b9a',
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className="w-7 h-7">
+        <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/>
+        <line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/>
+      </svg>
+    ),
+  },
+] as const;
+
+function HubCard({ module }: { module: typeof HUB_MODULES[number] }) {
+  const [hovered, setHovered] = useState(false);
+  return (
+    <Link
+      href={module.href}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      className="flex flex-col bg-white rounded-2xl overflow-hidden outline-none focus-visible:ring-2 focus-visible:ring-[#D32F2F] transition-all duration-200"
+      style={{
+        border: `1px solid ${hovered ? module.accentColor + '55' : '#ebebeb'}`,
+        boxShadow: hovered ? '0 8px 28px rgba(0,0,0,0.10)' : '0 1px 4px rgba(0,0,0,0.05)',
+        transform: hovered ? 'translateY(-2px)' : 'translateY(0)',
+      }}
+    >
+      <div className="h-[3px] w-full flex-shrink-0" style={{ background: module.accentColor, opacity: hovered ? 1 : 0.35 }} />
+      <div className="flex flex-col flex-1 p-7 gap-5">
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex items-center justify-center w-12 h-12 rounded-xl flex-shrink-0 transition-all duration-200"
+            style={{ color: module.accentColor, background: hovered ? module.badgeBg : '#f9f9f9', border: `1px solid ${hovered ? module.badgeBorder : '#efefef'}` }}>
+            {module.icon}
+          </div>
+          <span className="text-[11px] font-medium px-2.5 py-1 rounded-full flex-shrink-0 mt-0.5"
+            style={{ color: module.badgeColor, background: module.badgeBg, border: `1px solid ${module.badgeBorder}` }}>
+            {module.badge}
+          </span>
+        </div>
+        <div className="flex flex-col gap-2 flex-1">
+          <h2 className="text-[15px] font-semibold text-[#1a1a1a] leading-snug">{module.label}</h2>
+          <p className="text-[13px] text-[#777] leading-relaxed">{module.description}</p>
+        </div>
+        <div className="flex items-center gap-1.5 text-[13px] font-medium" style={{ color: module.accentColor }}>
+          Acceder
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+            className="w-3.5 h-3.5 transition-transform duration-150" style={{ transform: hovered ? 'translateX(3px)' : 'translateX(0)' }}>
+            <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+          </svg>
+        </div>
+      </div>
+    </Link>
+  );
+}
+
+function HubView({ onEnterPipeline }: { onEnterPipeline: () => void }) {
+  return (
+    <div className="min-h-screen bg-[#f5f5f5] font-sans flex flex-col items-center justify-center px-4 py-12">
+      <div className="flex flex-col items-center gap-5 mb-10">
+        <Image
+          src="/travelkit-logo_nbtjgf-67feae5fe38949.68302424.png"
+          alt="Travelkit"
+          width={180}
+          height={54}
+          className="h-14 w-auto object-contain"
+          priority
+        />
+        <div className="text-center">
+          <h1 className="text-[22px] font-semibold text-[#1a1a1a] leading-tight tracking-tight">
+            Panel de Control Travelkit
+          </h1>
+          <p className="text-[13px] text-[#888] mt-1.5">
+            Selecciona el módulo al que deseas acceder
+          </p>
+        </div>
+      </div>
+
+      <div className="w-full max-w-[960px] grid grid-cols-1 md:grid-cols-3 gap-4">
+        {HUB_MODULES.map(mod =>
+          mod.href === '/?view=pipeline' ? (
+            /* La card de Pipeline llama a onEnterPipeline en lugar de navegar */
+            <button
+              key={mod.href}
+              onClick={onEnterPipeline}
+              className="flex flex-col bg-white rounded-2xl overflow-hidden text-left w-full outline-none focus-visible:ring-2 focus-visible:ring-[#D32F2F] transition-all duration-200 group"
+              style={{ border: '1px solid #ebebeb', boxShadow: '0 1px 4px rgba(0,0,0,0.05)' }}
+              onMouseEnter={e => {
+                const el = e.currentTarget;
+                el.style.border = `1px solid ${mod.accentColor}55`;
+                el.style.boxShadow = '0 8px 28px rgba(0,0,0,0.10)';
+                el.style.transform = 'translateY(-2px)';
+              }}
+              onMouseLeave={e => {
+                const el = e.currentTarget;
+                el.style.border = '1px solid #ebebeb';
+                el.style.boxShadow = '0 1px 4px rgba(0,0,0,0.05)';
+                el.style.transform = 'translateY(0)';
+              }}
+            >
+              <div className="h-[3px] w-full flex-shrink-0" style={{ background: mod.accentColor, opacity: 0.35 }} />
+              <div className="flex flex-col flex-1 p-7 gap-5">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex items-center justify-center w-12 h-12 rounded-xl flex-shrink-0" style={{ color: mod.accentColor, background: '#f9f9f9', border: '1px solid #efefef' }}>
+                    {mod.icon}
+                  </div>
+                  <span className="text-[11px] font-medium px-2.5 py-1 rounded-full flex-shrink-0 mt-0.5"
+                    style={{ color: mod.badgeColor, background: mod.badgeBg, border: `1px solid ${mod.badgeBorder}` }}>
+                    {mod.badge}
+                  </span>
+                </div>
+                <div className="flex flex-col gap-2 flex-1">
+                  <h2 className="text-[15px] font-semibold text-[#1a1a1a] leading-snug">{mod.label}</h2>
+                  <p className="text-[13px] text-[#777] leading-relaxed">{mod.description}</p>
+                </div>
+                <div className="flex items-center gap-1.5 text-[13px] font-medium" style={{ color: mod.accentColor }}>
+                  Acceder
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5">
+                    <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+                  </svg>
+                </div>
+              </div>
+            </button>
+          ) : (
+            <HubCard key={mod.href} module={mod} />
+          )
+        )}
+      </div>
+
+      <p className="mt-10 text-[12px] text-[#bbb]">
+        Travelkit Colombia · Sistema interno · {new Date().getFullYear()}
+      </p>
+    </div>
+  );
+}
+
+/* ══════════════════════════════════════════════════
+   PÁGINA PRINCIPAL — Hub (admin) o Pipeline (resto)
+══════════════════════════════════════════════════ */
 export default function Page() {
-  /* ── Estado global ── */
+  const [role,           setRole]           = useState<string | null>(null);
+  const [showPipeline,   setShowPipeline]   = useState(false);
+  const [roleResolved,   setRoleResolved]   = useState(false);
+
+  /* ── Pipeline state ── */
   const [allTickets,      setAllTickets]      = useState<Ticket[]>([]);
   const [filteredTickets, setFilteredTickets] = useState<Ticket[]>([]);
   const [activeEstado,    setActiveEstado]    = useState<EstadoFilter>('Todos');
@@ -41,50 +228,39 @@ export default function Page() {
   const movementLog = useRef<MovementLog[]>([]);
   const loadingRef  = useRef(false);
 
-  /* ── Filtros ── */
+  /* ── Detectar rol al montar ── */
   useEffect(() => {
-    const q = searchQuery.toLowerCase();
-    const filtered = allTickets.filter(t => {
-      const norm = normalizeEstado(t.estado);
+    const saved = localStorage.getItem('tk-theme') as Theme | null;
+    if (saved) setTheme(saved);
 
-      const matchEstado =
-        activeEstado === 'Todos'      ||
-        (activeEstado === 'Abierto'    && norm === 'abierto')  ||
-        (activeEstado === 'En proceso' && norm === 'proceso')  ||
-        (activeEstado === 'Resuelto'   && norm === 'resuelto') ||
-        (activeEstado === 'Otra área'  && norm === 'otrarea');
+    const auth = createSupabaseBrowser();
+    auth.auth.getUser().then(({ data }) => {
+      const meta  = data.user?.user_metadata;
+      const email = data.user?.email || '';
+      const r     = meta?.role as string | undefined;
+      setRole(r ?? null);
+      setRoleResolved(true);
 
-      const matchPrioridad =
-        activePrioridad === 'Todas' ||
-        t.prioridad.toLowerCase() === activePrioridad.toLowerCase();
-
-      const matchSearch =
-        !q ||
-        t.ticket_id.toLowerCase().includes(q)  ||
-        t.email.toLowerCase().includes(q)       ||
-        t.descripcion.toLowerCase().includes(q) ||
-        t.categoria.toLowerCase().includes(q);
-
-      return matchEstado && matchPrioridad && matchSearch;
+      const emailLocal    = email.split('@')[0];
+      const nameFromEmail = emailLocal
+        .split('.')
+        .map((w: string) => w.charAt(0).toUpperCase() + w.slice(1))
+        .join(' ');
+      setUserName(meta?.full_name || meta?.name || nameFromEmail);
+      setUserEmail(email);
     });
-    setFilteredTickets(filtered);
-  }, [allTickets, activeEstado, activePrioridad, searchQuery]);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  /* ── Carga datos desde Supabase ── */
+  /* ── Cargar datos (pipeline) ── */
   const loadData = useCallback(async () => {
     if (loadingRef.current) return;
     loadingRef.current = true;
     setIsLoading(true);
-
     try {
       const { data, error } = await supabase.from('tickets').select('*').order('timestamp', { ascending: false });
       if (error) throw error;
-      if (data) {
-        setAllTickets(data as Ticket[]);
-      }
-    } catch (err) {
-      console.error('Database connection error:', err);
-      // Fallback
+      if (data) setAllTickets(data as Ticket[]);
+    } catch {
       setAllTickets([...MOCK_DATA]);
     } finally {
       setSyncTime(getSyncTimeStr());
@@ -93,35 +269,39 @@ export default function Page() {
     }
   }, []);
 
-  /* ── Init ── */
-  useEffect(() => {
-    const saved = localStorage.getItem('tk-theme') as Theme | null;
-    if (saved) setTheme(saved);
-    loadData();
+  /* ── Cargar datos cuando se entra al pipeline ── */
+  const isAdminInPipeline = role === 'admin' && showPipeline;
+  const isPipelineVisible = role !== 'admin' || isAdminInPipeline;
 
-    const auth = createSupabaseBrowser();
-    auth.auth.getUser().then(({ data }) => {
-      const meta = data.user?.user_metadata;
-      const email = data.user?.email || '';
-      const emailLocal = email.split('@')[0];
-      const nameFromEmail = emailLocal
-        .split('.')
-        .map((w: string) => w.charAt(0).toUpperCase() + w.slice(1))
-        .join(' ');
-      const name = meta?.full_name || meta?.name || nameFromEmail;
-      setUserName(name);
-      setUserEmail(email);
-    });
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    if (isPipelineVisible && roleResolved) loadData();
+  }, [isPipelineVisible, roleResolved]); // eslint-disable-line react-hooks/exhaustive-deps
 
   /* ── Auto-refresh ── */
   useEffect(() => {
-    if (AUTO_REFRESH <= 0) return;
+    if (!isPipelineVisible || AUTO_REFRESH <= 0) return;
     const interval = setInterval(loadData, AUTO_REFRESH * 1000);
     return () => clearInterval(interval);
-  }, [loadData]);
+  }, [isPipelineVisible, loadData]);
 
-  /* ── Tema ── */
+  /* ── Filtros ── */
+  useEffect(() => {
+    const q = searchQuery.toLowerCase();
+    setFilteredTickets(allTickets.filter(t => {
+      const norm = normalizeEstado(t.estado);
+      const matchEstado =
+        activeEstado === 'Todos' ||
+        (activeEstado === 'Abierto'    && norm === 'abierto')  ||
+        (activeEstado === 'En proceso' && norm === 'proceso')  ||
+        (activeEstado === 'Resuelto'   && norm === 'resuelto') ||
+        (activeEstado === 'Otra área'  && norm === 'otrarea');
+      const matchPrioridad = activePrioridad === 'Todas' || t.prioridad.toLowerCase() === activePrioridad.toLowerCase();
+      const matchSearch = !q || t.ticket_id.toLowerCase().includes(q) || t.email.toLowerCase().includes(q) ||
+        t.descripcion.toLowerCase().includes(q) || t.categoria.toLowerCase().includes(q);
+      return matchEstado && matchPrioridad && matchSearch;
+    }));
+  }, [allTickets, activeEstado, activePrioridad, searchQuery]);
+
   function toggleTheme() {
     const next: Theme = theme === 'dark' ? 'light' : 'dark';
     setTheme(next);
@@ -129,7 +309,6 @@ export default function Page() {
     localStorage.setItem('tk-theme', next);
   }
 
-  /* ── Toast ── */
   function showToast(html: string) {
     const id = `${Date.now()}-${Math.random()}`;
     setToasts(prev => [...prev, { id, html, hiding: false }]);
@@ -139,70 +318,40 @@ export default function Page() {
     }, 3000);
   }
 
-  /* ── Modal ── */
-  function handleMoveRequest(ticketId: string, fromEstado: string, toEstado: string) {
-    setPendingMove({ ticketId, fromEstado, toEstado });
-  }
-
-  function handleModalClose() {
-    setPendingMove(null);
-  }
-
   async function handleModalConfirm(responsable: string, accion: string, area: string) {
     if (!pendingMove) return;
     const { ticketId, fromEstado, toEstado } = pendingMove;
-
-    setAllTickets(prev => prev.map(t => {
-      if (t.ticket_id !== ticketId) return t;
-      return {
-        ...t,
-        estado:      toEstado,
-        responsable,
-        ...(area ? { area } : {}),
-      };
-    }));
-
-    movementLog.current.push({
-      ticket_id: ticketId, de: fromEstado, a: toEstado,
-      responsable, area: area || null, accion, timestamp: new Date().toISOString(),
-    });
-
+    setAllTickets(prev => prev.map(t =>
+      t.ticket_id !== ticketId ? t : { ...t, estado: toEstado, responsable, ...(area ? { area } : {}) }
+    ));
+    movementLog.current.push({ ticket_id: ticketId, de: fromEstado, a: toEstado, responsable, area: area || null, accion, timestamp: new Date().toISOString() });
     setPendingMove(null);
 
-    /* Guardar en base de datos de Supabase */
     const [{ error }, { error: movError }] = await Promise.all([
-      supabase
-        .from('tickets')
-        .update({ estado: toEstado, responsable, ...(area ? { area } : {}) })
-        .eq('ticket_id', ticketId),
-      supabase
-        .from('ticket_movements')
-        .insert({ ticket_id: ticketId, de: fromEstado, a: toEstado, responsable, area: area || null, accion }),
+      supabase.from('tickets').update({ estado: toEstado, responsable, ...(area ? { area } : {}) }).eq('ticket_id', ticketId),
+      supabase.from('ticket_movements').insert({ ticket_id: ticketId, de: fromEstado, a: toEstado, responsable, area: area || null, accion }),
     ]);
-
     if (movError) console.error('❌ ticket_movements insert error:', movError);
+    if (error) { showToast(`Error al mover ${ticketId}. Verifica tu conexión.`); return; }
 
-    if (error) {
-      console.error("Error al actualizar estado en supabase: ", error);
-      showToast(`Error al mover ${ticketId}. Verifica tu conexión a internet.`);
-      return; 
-    }
-
-    /* Animación landing en kanban */
     if (currentView === 'kanban') {
       requestAnimationFrame(() => requestAnimationFrame(() => {
-        const moved = document.querySelector<HTMLElement>(`.kanban-card[data-ticket-id="${ticketId}"]`);
-        if (moved) {
-          moved.classList.add('animate-card-land');
-          moved.addEventListener('animationend', () => moved.classList.remove('animate-card-land'), { once: true });
-        }
+        const el = document.querySelector<HTMLElement>(`.kanban-card[data-ticket-id="${ticketId}"]`);
+        if (el) { el.classList.add('animate-card-land'); el.addEventListener('animationend', () => el.classList.remove('animate-card-land'), { once: true }); }
       }));
     }
-
     showToast(`${ticketId} movido a <strong style="color:var(--accent)">${toEstado}</strong> · por ${responsable.split(' ')[0]}`);
   }
 
-  /* ── Render ── */
+  /* ── Esperar a que se resuelva el rol ── */
+  if (!roleResolved) return null;
+
+  /* ── Admin ve el Hub (a menos que haya entrado al pipeline) ── */
+  if (role === 'admin' && !showPipeline) {
+    return <HubView onEnterPipeline={() => setShowPipeline(true)} />;
+  }
+
+  /* ── Pipeline ── */
   return (
     <>
       <Header
@@ -215,21 +364,10 @@ export default function Page() {
         syncTime={syncTime}
         userName={userName}
       />
-
       <ConfigBanner />
-
       <StatsBar allTickets={allTickets} />
 
       <main className="flex-1 px-4 md:px-8 py-4 md:py-6">
-        {/* Error banner — solo visible con Google Sheets real */}
-        <div id="errorBanner" className="hidden bg-[rgba(239,83,80,0.06)] border border-[rgba(239,83,80,0.25)] rounded-md px-5 py-4 mb-5">
-          <div className="font-mono text-xs font-semibold text-tk-red tracking-[0.06em] uppercase mb-2 flex items-center gap-2">
-            Error al cargar datos
-          </div>
-          <p className="text-[13px] text-tk-text2">No se pudo conectar con el Google Sheet.</p>
-        </div>
-
-        {/* Barra superior: filtros + botón nueva solicitud */}
         <div className="flex flex-col sm:flex-row items-stretch sm:items-start gap-3 mb-0">
           <div className="flex-1 min-w-0">
             {currentView === 'table' && (
@@ -243,6 +381,18 @@ export default function Page() {
               />
             )}
           </div>
+          {/* Admin puede volver al Hub */}
+          {role === 'admin' && (
+            <button
+              onClick={() => setShowPipeline(false)}
+              className="flex items-center gap-1.5 px-3 py-[7px] border border-tk-border2 text-tk-text3 font-mono text-[10px] tracking-[0.06em] uppercase rounded cursor-pointer hover:border-tk-accent hover:text-tk-accent transition-colors duration-150 flex-shrink-0 self-start"
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-3 h-3">
+                <line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/>
+              </svg>
+              Panel
+            </button>
+          )}
           <button
             onClick={() => setNuevaSolicitud(true)}
             className="flex items-center justify-center gap-1.5 px-3 py-[7px] bg-tk-accent text-[#0d0f11] font-mono text-[11px] font-semibold tracking-[0.06em] uppercase rounded cursor-pointer transition-opacity duration-[0.15s] hover:opacity-90 active:opacity-80 whitespace-nowrap flex-shrink-0 self-start"
@@ -254,90 +404,34 @@ export default function Page() {
           </button>
         </div>
 
-        {/* Vista tabla */}
         <div key={`view-${currentView}`} className="animate-fade-up">
           {currentView === 'table' && (
-            <TicketTable
-              filteredTickets={filteredTickets}
-              allTickets={allTickets}
-              isLoading={isLoading}
-              onTicketClick={setSelectedTicket}
-            />
+            <TicketTable filteredTickets={filteredTickets} allTickets={allTickets} isLoading={isLoading} onTicketClick={setSelectedTicket} />
           )}
-
-          {/* Vista kanban */}
           {currentView === 'kanban' && (
-            <KanbanBoard
-              allTickets={allTickets}
-              onMoveRequest={handleMoveRequest}
-              onTicketClick={setSelectedTicket}
-            />
+            <KanbanBoard allTickets={allTickets} onMoveRequest={(id, from, to) => setPendingMove({ ticketId: id, fromEstado: from, toEstado: to })} onTicketClick={setSelectedTicket} />
           )}
         </div>
       </main>
 
-      {/* Footer */}
       <footer className="px-4 md:px-8 py-3 border-t border-tk-border flex items-center bg-tk-bg2 gap-4">
         <div className="font-mono text-[10px] tracking-[0.1em] uppercase text-tk-text3">
           IT Helpdesk System · Travelkit Colombia
         </div>
         <div className="ml-auto font-mono text-[11px] text-tk-text3">
-          <span className="text-tk-text2">{filteredTickets.length}</span> /{' '}
-          <span className="text-tk-text2">{allTickets.length}</span> tickets
+          <span className="text-tk-text2">{filteredTickets.length}</span> / <span className="text-tk-text2">{allTickets.length}</span> tickets
         </div>
       </footer>
 
-      {/* Modal */}
-      <Modal
-        pendingMove={pendingMove}
-        onClose={handleModalClose}
-        onConfirm={handleModalConfirm}
-      />
-
-      {/* Toasts */}
+      <Modal pendingMove={pendingMove} onClose={() => setPendingMove(null)} onConfirm={handleModalConfirm} />
       <ToastContainer toasts={toasts} />
-
-      {/* Detalle de ticket */}
-      <TicketDetailModal
-        ticket={selectedTicket}
-        onClose={() => setSelectedTicket(null)}
-      />
-
-      {/* Modal nueva solicitud */}
+      <TicketDetailModal ticket={selectedTicket} onClose={() => setSelectedTicket(null)} />
       <NuevaSolicitudModal
         open={nuevaSolicitud}
         userEmail={userEmail}
         onClose={() => setNuevaSolicitud(false)}
-        onCreated={() => {
-          loadData();
-          showToast('Solicitud registrada correctamente en el sistema.');
-        }}
+        onCreated={() => { loadData(); showToast('Solicitud registrada correctamente en el sistema.'); }}
       />
     </>
   );
 }
-
-/* ══════════════════════════════════════════════════
-   CONEXIÓN REAL — Google Sheets
-   1. Comparte el Sheet como público
-   2. Reemplaza SHEET_ID y SHEET_NAME
-   3. Usa loadFromSheet() en lugar de loadData()
-══════════════════════════════════════════════════ */
-// const SHEET_ID   = 'TU_SHEET_ID_AQUI';
-// const SHEET_NAME = 'Sheet1';
-// const COLS = { ticket_id:0, timestamp:1, email:2, categoria:3, prioridad:4, descripcion:5, estado:6 };
-//
-// function parseCSVLine(line: string): string[] {
-//   const cols: string[] = [];
-//   let inQuote = false, cur = '';
-//   for (let i = 0; i < line.length; i++) {
-//     const c = line[i];
-//     if (c === '"') { if (inQuote && line[i+1]==='"'){cur+='"';i++;}else{inQuote=!inQuote;} }
-//     else if (c === ',' && !inQuote) { cols.push(cur.trim()); cur=''; }
-//     else { cur += c; }
-//   }
-//   cols.push(cur.trim());
-//   return cols;
-// }
-//
-// async function loadFromSheet() { ... }

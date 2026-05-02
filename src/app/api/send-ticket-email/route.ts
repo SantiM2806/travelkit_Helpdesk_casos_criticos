@@ -19,7 +19,7 @@ export async function POST(request: Request) {
   const color = PRIORITY_COLOR[urgency] ?? '#555';
 
   const { error } = await resend.emails.send({
-    from: 'Soporte IT Travelkit <it@travelkit.us>',
+    from: 'Soporte IT Travelkit <onboarding@resend.dev>',
     to:   email,
     subject: `[${ticket_id}] Tu solicitud fue recibida`,
     html: `

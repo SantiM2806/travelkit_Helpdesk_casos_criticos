@@ -29,7 +29,8 @@ export default function LoginPage() {
     }
 
     const role = data.user?.user_metadata?.role;
-    router.push(role === 'executive' ? '/executive' : '/');
+    if (role === 'executive') router.push('/executive');
+    else                      router.push('/');
     router.refresh();
   }
 

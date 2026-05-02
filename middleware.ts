@@ -4,28 +4,26 @@ import { NextResponse, type NextRequest } from 'next/server';
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const SUPABASE_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-// Public routes: no auth required (accessible to all corporate employees)
-const PUBLIC_PATHS = ['/solicitud', '/auth/callback', '/auth/reset-password', '/api/'];
+// Public routes: no auth required
+const PUBLIC_PREFIXES = ['/solicitud', '/auth/callback', '/auth/reset-password', '/api/'];
 
 export async function middleware(request: NextRequest) {
   if (!SUPABASE_URL || !SUPABASE_KEY) {
-    console.error('Missing Supabase env vars — check NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY');
+    console.error('Missing Supabase env vars');
     return NextResponse.next();
   }
 
   const { pathname } = request.nextUrl;
-  const isPublicPath = PUBLIC_PATHS.some(p => pathname.startsWith(p));
 
-  // Allow public routes without session check
-  if (isPublicPath) return NextResponse.next({ request });
+  if (PUBLIC_PREFIXES.some(p => pathname.startsWith(p))) {
+    return NextResponse.next({ request });
+  }
 
   let supabaseResponse = NextResponse.next({ request });
 
   const supabase = createServerClient(SUPABASE_URL, SUPABASE_KEY, {
     cookies: {
-      getAll() {
-        return request.cookies.getAll();
-      },
+      getAll() { return request.cookies.getAll(); },
       setAll(cookiesToSet) {
         cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
         supabaseResponse = NextResponse.next({ request });
@@ -37,18 +35,39 @@ export async function middleware(request: NextRequest) {
   });
 
   const { data: { user } } = await supabase.auth.getUser();
-  const isLoginPage = pathname.startsWith('/login');
+  const role = user?.user_metadata?.role as string | undefined;
 
+  const isLoginPage = pathname.startsWith('/login');
+  const isExecutive = pathname.startsWith('/executive');
+  const isRoot      = pathname === '/';
+
+  // No session → redirect to login
   if (!user && !isLoginPage) {
-    const loginUrl = request.nextUrl.clone();
-    loginUrl.pathname = '/login';
-    return NextResponse.redirect(loginUrl);
+    const url = request.nextUrl.clone();
+    url.pathname = '/login';
+    return NextResponse.redirect(url);
   }
 
+  // Already logged in on login page → redirect to landing
   if (user && isLoginPage) {
-    const homeUrl = request.nextUrl.clone();
-    homeUrl.pathname = '/';
-    return NextResponse.redirect(homeUrl);
+    const url = request.nextUrl.clone();
+    // Admin and developer both land on /  (admin sees Hub, developer sees Pipeline)
+    url.pathname = role === 'executive' ? '/executive' : '/';
+    return NextResponse.redirect(url);
+  }
+
+  // Executive cannot access root pipeline/hub
+  if (user && isRoot && role === 'executive') {
+    const url = request.nextUrl.clone();
+    url.pathname = '/executive';
+    return NextResponse.redirect(url);
+  }
+
+  // Developer cannot access executive
+  if (user && isExecutive && role === 'developer') {
+    const url = request.nextUrl.clone();
+    url.pathname = '/';
+    return NextResponse.redirect(url);
   }
 
   return supabaseResponse;
