@@ -1,4 +1,4 @@
-const ALLOWED_EMAIL_DOMAINS = ['travelkit.co', 'travelkit.us'];
+const ALLOWED_EMAIL_DOMAINS = ['travelkit.co', 'travelkit.us', 'travelkit.com', 'mitravelkit.com'];
 
 const ALLOWED_CATEGORIAS = ['Software', 'Hardware', 'Conectividad', 'Accesos', 'Teams', 'Correo'];
 const ALLOWED_PRIORIDADES = ['Alta', 'Media', 'Baja'];
