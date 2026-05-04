@@ -11,7 +11,9 @@
       "mcp__supabase__list_tables",
       "Skill(update-config)",
       "Skill(update-config:*)",
-      "mcp__supabase__execute_sql"
+      "mcp__supabase__execute_sql",
+      "Bash(rm \"c:/Users/santi/travelkit_Helpdesk_IT/src/app/page.tsx\")",
+      "Bash(rm -rf \"c:/Users/santi/travelkit_Helpdesk_IT/src/app/executive\")"
     ]
   }
 }

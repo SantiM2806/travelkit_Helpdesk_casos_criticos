@@ -145,7 +145,6 @@ function HubView({ onEnterPipeline }: { onEnterPipeline: () => void }) {
       <div className="w-full max-w-[960px] grid grid-cols-1 md:grid-cols-3 gap-4">
         {HUB_MODULES.map(mod =>
           mod.href === '/?view=pipeline' ? (
-            /* La card de Pipeline llama a onEnterPipeline en lugar de navegar */
             <button
               key={mod.href}
               onClick={onEnterPipeline}
