@@ -36,21 +36,23 @@ async function generarTicketId(): Promise<string> {
 }
 
 export default function NuevaSolicitudModal({ open, userEmail, onClose, onCreated }: Props) {
-  const [mounted,     setMounted]     = useState(false);
-  const [visible,     setVisible]     = useState(false);
-  const [categoria,   setCategoria]   = useState('Software');
-  const [prioridad,   setPrioridad]   = useState('Media');
-  const [descripcion, setDescripcion] = useState('');
-  const [imageFile,   setImageFile]   = useState<File | null>(null);
+  const [mounted,      setMounted]      = useState(false);
+  const [visible,      setVisible]      = useState(false);
+  const [solicitante,  setSolicitante]  = useState(userEmail);
+  const [categoria,    setCategoria]    = useState('Software');
+  const [prioridad,    setPrioridad]    = useState('Media');
+  const [descripcion,  setDescripcion]  = useState('');
+  const [imageFile,    setImageFile]    = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const [dragOver,    setDragOver]    = useState(false);
-  const [loading,     setLoading]     = useState(false);
-  const [error,       setError]       = useState('');
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const [dragOver,     setDragOver]     = useState(false);
+  const [loading,      setLoading]      = useState(false);
+  const [error,        setError]        = useState('');
+  const textareaRef  = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (open) {
+      setSolicitante(userEmail);
       setCategoria('Software');
       setPrioridad('Media');
       setDescripcion('');
@@ -129,7 +131,7 @@ export default function NuevaSolicitudModal({ open, userEmail, onClose, onCreate
       const { error: dbError } = await supabase.from('tickets').insert({
         ticket_id,
         timestamp:   new Date().toISOString(),
-        email:       userEmail,
+        email:       solicitante.trim(),
         categoria,
         prioridad,
         descripcion: sanitize(descripcion),
@@ -171,7 +173,7 @@ export default function NuevaSolicitudModal({ open, userEmail, onClose, onCreate
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-tk-border">
           <div>
-            <div className="font-mono text-[11px] tracking-[0.1em] uppercase text-tk-accent mb-0.5">
+            <div className="font-mono text-[11px] tracking-[0.1em] uppercase mb-0.5" style={{ color: '#D32F2F' }}>
               Nueva Solicitud
             </div>
             <div className="text-[13px] text-tk-text font-medium">
@@ -191,14 +193,18 @@ export default function NuevaSolicitudModal({ open, userEmail, onClose, onCreate
         {/* Formulario */}
         <form onSubmit={handleSubmit} className="px-6 py-5 flex flex-col gap-4">
 
-          {/* Email (solo lectura) */}
+          {/* Email editable */}
           <div className="flex flex-col gap-1.5">
             <label className="font-mono text-[10px] tracking-[0.08em] uppercase text-tk-text3">
               Solicitante
             </label>
-            <div className="px-3 py-2 bg-tk-bg3 border border-tk-border rounded text-[13px] text-tk-text2 font-mono">
-              {userEmail}
-            </div>
+            <input
+              type="email"
+              value={solicitante}
+              onChange={e => setSolicitante(e.target.value)}
+              placeholder="correo@travelkit.com"
+              className="modal-textarea search-input w-full bg-tk-bg3 border border-tk-border2 rounded px-3 py-2 text-[13px] text-tk-text font-mono placeholder:text-tk-text3 focus:outline-none focus:border-tk-accent2 transition-colors duration-[0.12s]"
+            />
           </div>
 
           {/* Categoría + Prioridad en fila */}
@@ -341,11 +347,12 @@ export default function NuevaSolicitudModal({ open, userEmail, onClose, onCreate
             <button
               type="submit"
               disabled={loading || !descripcion.trim()}
-              className="flex-[2] flex items-center justify-center gap-2 px-4 py-2 bg-tk-accent text-[#0d0f11] font-mono text-[11px] font-semibold tracking-[0.08em] uppercase rounded cursor-pointer transition-[opacity] duration-[0.15s] hover:opacity-90 active:opacity-80 disabled:opacity-40 disabled:cursor-not-allowed"
+              className="flex-[2] flex items-center justify-center gap-2 px-4 py-2 text-white font-mono text-[11px] font-semibold tracking-[0.08em] uppercase rounded cursor-pointer transition-[opacity] duration-[0.15s] hover:opacity-90 active:opacity-80 disabled:opacity-40 disabled:cursor-not-allowed"
+              style={{ background: '#CC0000' }}
             >
               {loading ? (
                 <>
-                  <span className="inline-block w-3 h-3 border-2 border-[#0d0f11] border-t-transparent rounded-full animate-spin-sync" />
+                  <span className="inline-block w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin-sync" />
                   {imageFile ? 'SUBIENDO…' : 'REGISTRANDO…'}
                 </>
               ) : (

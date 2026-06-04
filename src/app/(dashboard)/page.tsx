@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import type { Ticket, EstadoFilter, PrioridadFilter, View, Theme, PendingMove, ToastItem, MovementLog } from '@/features/tickets/types';
+import type { Ticket, EstadoFilter, PrioridadFilter, View, PendingMove, ToastItem, MovementLog } from '@/features/tickets/types';
 import { MOCK_DATA } from '@/features/tickets/actions/ticket.actions';
 import { normalizeEstado, getSyncTimeStr } from '@/features/tickets/utils/formatters';
 import { supabase } from '@/lib/supabase/server';
@@ -145,7 +145,6 @@ function HubView({ onEnterPipeline }: { onEnterPipeline: () => void }) {
       <div className="w-full max-w-[960px] grid grid-cols-1 md:grid-cols-3 gap-4">
         {HUB_MODULES.map(mod =>
           mod.href === '/?view=pipeline' ? (
-            /* La card de Pipeline llama a onEnterPipeline en lugar de navegar */
             <button
               key={mod.href}
               onClick={onEnterPipeline}
@@ -217,7 +216,6 @@ export default function Page() {
   const [isLoading,       setIsLoading]       = useState(false);
   const [currentView,     setCurrentView]     = useState<View>('table');
   const [pendingMove,     setPendingMove]     = useState<PendingMove | null>(null);
-  const [theme,           setTheme]           = useState<Theme>('dark');
   const [toasts,          setToasts]          = useState<ToastItem[]>([]);
   const [syncTime,        setSyncTime]        = useState('—');
   const [userName,        setUserName]        = useState('');
@@ -230,9 +228,6 @@ export default function Page() {
 
   /* ── Detectar rol al montar ── */
   useEffect(() => {
-    const saved = localStorage.getItem('tk-theme') as Theme | null;
-    if (saved) setTheme(saved);
-
     const auth = createSupabaseBrowser();
     auth.auth.getUser().then(({ data }) => {
       const meta  = data.user?.user_metadata;
@@ -302,13 +297,6 @@ export default function Page() {
     }));
   }, [allTickets, activeEstado, activePrioridad, searchQuery]);
 
-  function toggleTheme() {
-    const next: Theme = theme === 'dark' ? 'light' : 'dark';
-    setTheme(next);
-    document.documentElement.setAttribute('data-theme', next);
-    localStorage.setItem('tk-theme', next);
-  }
-
   function showToast(html: string) {
     const id = `${Date.now()}-${Math.random()}`;
     setToasts(prev => [...prev, { id, html, hiding: false }]);
@@ -357,12 +345,9 @@ export default function Page() {
       <Header
         currentView={currentView}
         onViewChange={setCurrentView}
-        theme={theme}
-        onThemeToggle={toggleTheme}
         isLoading={isLoading}
         onSync={loadData}
         syncTime={syncTime}
-        userName={userName}
       />
       <ConfigBanner />
       <StatsBar allTickets={allTickets} />
@@ -395,7 +380,8 @@ export default function Page() {
           )}
           <button
             onClick={() => setNuevaSolicitud(true)}
-            className="flex items-center justify-center gap-1.5 px-3 py-[7px] bg-tk-accent text-[#0d0f11] font-mono text-[11px] font-semibold tracking-[0.06em] uppercase rounded cursor-pointer transition-opacity duration-[0.15s] hover:opacity-90 active:opacity-80 whitespace-nowrap flex-shrink-0 self-start"
+            className="flex items-center justify-center gap-1.5 px-3 py-[7px] font-mono text-[11px] font-semibold tracking-[0.06em] uppercase rounded cursor-pointer transition-opacity duration-[0.15s] hover:opacity-90 active:opacity-80 whitespace-nowrap flex-shrink-0 self-start text-white"
+            style={{ background: '#CC0000' }}
           >
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-3 h-3">
               <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
