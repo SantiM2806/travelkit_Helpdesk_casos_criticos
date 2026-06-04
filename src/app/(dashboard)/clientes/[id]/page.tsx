@@ -151,7 +151,8 @@ export default function ClienteDetailPage() {
                 Cancelar
               </button>
               <button onClick={handleSaveEdit} disabled={saving}
-                className="px-3 py-1.5 rounded-lg bg-tk-accent text-[#0d0f11] font-mono text-[11px] font-semibold uppercase tracking-wide cursor-pointer hover:opacity-90 transition-opacity disabled:opacity-50">
+                className="px-3 py-1.5 rounded-lg text-white font-mono text-[11px] font-semibold uppercase tracking-wide cursor-pointer hover:opacity-90 transition-opacity disabled:opacity-50"
+                style={{ background: '#CC0000' }}>
                 {saving ? 'Guardando…' : 'Guardar cambios'}
               </button>
             </>
@@ -283,7 +284,8 @@ export default function ClienteDetailPage() {
                   onChange={e => setActForm(p => ({ ...p, descripcion: e.target.value }))}
                 />
                 <button type="submit" disabled={actSaving || !actForm.descripcion.trim()}
-                  className="px-4 py-2 rounded-lg bg-tk-accent text-[#0d0f11] font-mono text-[11px] font-semibold uppercase tracking-wide cursor-pointer hover:opacity-90 transition-opacity disabled:opacity-40 self-end flex-shrink-0">
+                  className="px-4 py-2 rounded-lg text-white font-mono text-[11px] font-semibold uppercase tracking-wide cursor-pointer hover:opacity-90 transition-opacity disabled:opacity-40 self-end flex-shrink-0"
+                  style={{ background: '#CC0000' }}>
                   {actSaving ? '…' : 'Registrar'}
                 </button>
               </div>
@@ -319,7 +321,7 @@ export default function ClienteDetailPage() {
                         {a.responsable && <span className="text-[11px] text-tk-text2">{a.responsable}</span>}
                         <span className="text-[11px] text-tk-text3 ml-auto whitespace-nowrap">{formatDate(a.created_at)}</span>
                       </div>
-                      <p className="text-[13px] text-tk-text leading-relaxed whitespace-pre-wrap">{a.descripcion}</p>
+                      <p className="text-[13px] text-tk-text leading-relaxed break-words whitespace-pre-wrap">{a.descripcion}</p>
                     </div>
                   </div>
                 ))}

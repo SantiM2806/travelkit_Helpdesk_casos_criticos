@@ -1,9 +1,10 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import Link from 'next/link';
 import { createSupabaseBrowser } from '@/lib/supabase/client';
 import type { Cliente, EstadoCliente, TipoCliente, Integrador } from '@/features/clientes/types';
+import ClientePanel from '@/features/clientes/components/ClientePanel';
+import ImportClientesModal from '@/features/clientes/components/ImportClientesModal';
 
 /* ── Badges ─────────────────────────────────────── */
 function BadgeEstado({ estado }: { estado: EstadoCliente }) {
@@ -186,7 +187,8 @@ function NuevoClienteModal({ open, onClose, onCreated }: NuevoClienteModalProps)
               Cancelar
             </button>
             <button type="submit" disabled={saving}
-              className="px-4 py-2 rounded-lg bg-tk-accent text-[#0d0f11] font-mono text-[12px] font-semibold uppercase tracking-wide cursor-pointer hover:opacity-90 transition-opacity disabled:opacity-50">
+              className="px-4 py-2 rounded-lg text-white font-mono text-[12px] font-semibold uppercase tracking-wide cursor-pointer hover:opacity-90 transition-opacity disabled:opacity-50"
+              style={{ background: '#CC0000' }}>
               {saving ? 'Guardando…' : 'Crear cliente'}
             </button>
           </div>
@@ -206,6 +208,8 @@ export default function ClientesPage() {
   const [search,         setSearch]         = useState('');
   const [estadoFilter,   setEstadoFilter]   = useState<EstadoCliente | 'Todos'>('Todos');
   const [modalOpen,      setModalOpen]      = useState(false);
+  const [importOpen,     setImportOpen]     = useState(false);
+  const [selectedId,     setSelectedId]     = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -239,9 +243,19 @@ export default function ClientesPage() {
       {/* Header de página */}
       <div className="sticky top-0 z-30 h-14 bg-tk-bg2 border-b border-tk-border flex items-center px-6 gap-4">
         <h1 className="font-mono text-[14px] font-semibold text-tk-text tracking-wide">CLIENTES</h1>
-        <div className="ml-auto">
+        <div className="ml-auto flex items-center gap-2">
+          <button onClick={() => setImportOpen(true)}
+            className="flex items-center gap-1.5 px-3 py-[7px] font-mono text-[11px] tracking-[0.06em] uppercase rounded cursor-pointer hover:bg-tk-bg3 transition-colors text-tk-text2 border border-tk-border2">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-3 h-3">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="7 10 12 15 17 10"/>
+              <line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+            Importar CSV
+          </button>
           <button onClick={() => setModalOpen(true)}
-            className="flex items-center gap-1.5 px-3 py-[7px] bg-tk-accent text-[#0d0f11] font-mono text-[11px] font-semibold tracking-[0.06em] uppercase rounded cursor-pointer hover:opacity-90 transition-opacity">
+            className="flex items-center gap-1.5 px-3 py-[7px] font-mono text-[11px] font-semibold tracking-[0.06em] uppercase rounded cursor-pointer hover:opacity-90 transition-opacity text-white"
+            style={{ background: '#CC0000' }}>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-3 h-3">
               <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
             </svg>
@@ -323,7 +337,7 @@ export default function ClientesPage() {
             <tbody>
               {filtered.map(c => (
                 <tr key={c.id} className="border-b border-tk-border hover:bg-tk-bg2 transition-colors group cursor-pointer"
-                  onClick={() => window.location.href = `/clientes/${c.id}`}>
+                  onClick={() => setSelectedId(c.id)}>
                   <td className="px-5 py-3.5">
                     <span className="text-[13px] font-semibold text-tk-text group-hover:text-tk-accent transition-colors">{c.nombre}</span>
                   </td>
@@ -335,10 +349,10 @@ export default function ClientesPage() {
                   <td className="px-5 py-3.5 text-[12px] text-tk-text3">{c.consolidador ?? '—'}</td>
                   <td className="px-5 py-3.5 text-[12px] text-tk-text2">{c.responsable ?? '—'}</td>
                   <td className="px-5 py-3.5">
-                    <Link href={`/clientes/${c.id}`} onClick={e => e.stopPropagation()}
-                      className="opacity-0 group-hover:opacity-100 transition-opacity font-mono text-[10px] text-tk-accent hover:underline tracking-wide">
+                    <button onClick={e => { e.stopPropagation(); setSelectedId(c.id); }}
+                      className="opacity-0 group-hover:opacity-100 transition-opacity font-mono text-[10px] text-tk-accent hover:underline tracking-wide cursor-pointer">
                       Ver →
-                    </Link>
+                    </button>
                   </td>
                 </tr>
               ))}
@@ -348,6 +362,15 @@ export default function ClientesPage() {
       </main>
 
       <NuevoClienteModal open={modalOpen} onClose={() => setModalOpen(false)} onCreated={load} />
+      <ImportClientesModal open={importOpen} onClose={() => setImportOpen(false)} onImported={load} />
+
+      {selectedId && (
+        <ClientePanel
+          clienteId={selectedId}
+          onClose={() => setSelectedId(null)}
+          onUpdated={load}
+        />
+      )}
     </div>
   );
 }

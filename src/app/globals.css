@@ -291,7 +291,7 @@
 .search-input::placeholder { color: var(--text3); }
 .search-input:focus {
   border-color: var(--accent2);
-  background: #1a1d20;
+  background: var(--bg3);
   outline: none;
 }
 
