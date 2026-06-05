@@ -1,7 +1,9 @@
 'use client';
 
 import { useState, FormEvent, useEffect, useRef, useCallback } from 'react';
-import { supabase } from '@/lib/supabase/server';
+import { createSupabaseBrowser } from '@/lib/supabase/client';
+
+const supabase = createSupabaseBrowser();
 import { uploadTicketImage, validateImageFile } from '@/lib/supabase/storage';
 import {
   sanitize,

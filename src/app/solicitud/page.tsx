@@ -2,7 +2,9 @@
 
 import { useState, useCallback, useRef, FormEvent } from 'react';
 import Image from 'next/image';
-import { supabase } from '@/lib/supabase/server';
+import { createSupabaseBrowser } from '@/lib/supabase/client';
+
+const supabase = createSupabaseBrowser();
 import { uploadTicketImage, validateImageFile } from '@/lib/supabase/storage';
 import { sanitize, validateEmail, validateNombre, validateDescripcion, LIMITS } from '@/features/tickets/utils/validations';
 
