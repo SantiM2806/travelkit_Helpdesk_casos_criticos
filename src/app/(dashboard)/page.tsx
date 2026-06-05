@@ -6,8 +6,9 @@ import Image from 'next/image';
 import type { Ticket, EstadoFilter, PrioridadFilter, View, PendingMove, ToastItem, MovementLog } from '@/features/tickets/types';
 import { MOCK_DATA } from '@/features/tickets/actions/ticket.actions';
 import { normalizeEstado, getSyncTimeStr } from '@/features/tickets/utils/formatters';
-import { supabase } from '@/lib/supabase/server';
 import { createSupabaseBrowser } from '@/lib/supabase/client';
+
+const supabase = createSupabaseBrowser();
 
 import Header         from '@/components/layout/Header';
 import ConfigBanner   from '@/components/layout/ConfigBanner';
@@ -122,7 +123,8 @@ function HubCard({ module }: { module: typeof HUB_MODULES[number] }) {
 
 function HubView({ onEnterPipeline }: { onEnterPipeline: () => void }) {
   return (
-    <div className="min-h-screen bg-[#f5f5f5] font-sans flex flex-col items-center justify-center px-4 py-12">
+    <div className="fixed inset-0 z-[100] bg-[#f5f5f5] font-sans overflow-y-auto">
+      <div className="min-h-full flex flex-col items-center justify-center px-4 py-12">
       <div className="flex flex-col items-center gap-5 mb-10">
         <Image
           src="/travelkit-logo_nbtjgf-67feae5fe38949.68302424.png"
@@ -195,6 +197,7 @@ function HubView({ onEnterPipeline }: { onEnterPipeline: () => void }) {
       <p className="mt-10 text-[12px] text-[#bbb]">
         Travelkit Colombia · Sistema interno · {new Date().getFullYear()}
       </p>
+      </div>
     </div>
   );
 }
@@ -252,10 +255,24 @@ export default function Page() {
     loadingRef.current = true;
     setIsLoading(true);
     try {
-      const { data, error } = await supabase.from('tickets').select('*').order('timestamp', { ascending: false });
-      if (error) throw error;
+      const sess = await supabase.auth.getSession();
+      console.log('[PIPELINE] Sesion activa:', !!sess.data.session, 'uid:', sess.data.session?.user?.id);
+      const { data, error, status, statusText } = await supabase.from('tickets').select('*').order('timestamp', { ascending: false });
+      if (error) {
+        console.error('[PIPELINE] Supabase query failed:', {
+          message: error.message,
+          code: error.code,
+          details: error.details,
+          hint: error.hint,
+          status,
+          statusText,
+        });
+        throw error;
+      }
+      console.log('[PIPELINE] Supabase OK — filas devueltas:', data?.length ?? 0);
       if (data) setAllTickets(data as Ticket[]);
-    } catch {
+    } catch (err) {
+      console.warn('[PIPELINE] Cayendo al MOCK_DATA por error:', err);
       setAllTickets([...MOCK_DATA]);
     } finally {
       setSyncTime(getSyncTimeStr());
