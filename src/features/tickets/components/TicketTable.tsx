@@ -90,14 +90,14 @@ export default function TicketTable({ filteredTickets, allTickets, isLoading, on
 
             return (
               <tr
-                key={t.ticket_id}
+                key={t.id}
                 onClick={() => onTicketClick(t)}
                 className="ticket-row border-b border-tk-border last:border-b-0 hover:bg-tk-bg3 cursor-pointer"
                 style={{ transitionDelay: `${i * 30}ms` }}
               >
                 <td className="py-3 px-4 pl-5 font-mono text-xs text-tk-text2 whitespace-nowrap">
                   <span className="inline-flex items-center gap-1.5">
-                    {t.ticket_id || <span className="text-tk-text3">—</span>}
+                    {t.ticket_id || t.codigo || <span className="text-tk-text3">—</span>}
                     {t.imagen_url && (
                       <a
                         href={t.imagen_url}

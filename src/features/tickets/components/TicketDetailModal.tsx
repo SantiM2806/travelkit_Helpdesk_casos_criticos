@@ -57,7 +57,7 @@ export default function TicketDetailModal({ ticket, onClose }: Props) {
         <div className="flex items-center justify-between px-6 py-4 border-b border-tk-border bg-tk-bg2 flex-shrink-0">
           <div className="flex items-center gap-3 flex-wrap">
             <span className="font-mono text-[13px] font-semibold text-tk-text2 tracking-[0.04em]">
-              {ticket.ticket_id}
+              {ticket.ticket_id || ticket.codigo || '—'}
             </span>
             <span className={estBadge.cls}>
               {estBadge.dotCls && <span className={`w-[6px] h-[6px] rounded-full flex-shrink-0 ${estBadge.dotCls}`} />}

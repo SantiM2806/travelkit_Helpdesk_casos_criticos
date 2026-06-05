@@ -1,8 +1,11 @@
 export interface Ticket {
-  ticket_id:     string;
+  id:            string;          // UUID, siempre presente (PK de public.tickets)
+  ticket_id?:    string | null;   // codigo humano legacy TK-0001, puede ser NULL para tickets nuevos
+  codigo?:       string | null;   // codigo humano nuevo TKT-00001 / SOL-00001 (auto-generado por trigger)
+  tipo?:         string | null;   // 'interna_proyecto' | 'externa_soporte'
   timestamp:     string;
-  email:         string;
-  categoria:     string;
+  email?:        string | null;
+  categoria?:    string | null;
   prioridad:     string;
   descripcion:   string;
   estado:        string;

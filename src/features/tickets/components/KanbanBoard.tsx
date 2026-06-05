@@ -198,7 +198,7 @@ export default function KanbanBoard({ allTickets, onMoveRequest, onTicketClick }
                   Sin tickets
                 </div>
               ) : (
-                tickets.map(t => <KanbanCard key={t.ticket_id} ticket={t} onPointerDown={onPointerDown} />)
+                tickets.map(t => <KanbanCard key={t.id} ticket={t} onPointerDown={onPointerDown} />)
               )}
             </div>
           </div>
@@ -220,14 +220,14 @@ function KanbanCard({ ticket, onPointerDown }: KanbanCardProps) {
 
   return (
     <div
-      data-ticket-id={ticket.ticket_id}
+      data-ticket-id={ticket.ticket_id || ticket.codigo || ticket.id}
       onPointerDown={onPointerDown}
       className="kanban-card bg-tk-bg3 border border-tk-border rounded-md px-[14px] py-3 cursor-grab select-none transition-[border-color,transform,box-shadow,opacity] duration-[0.12s,0.15s,0.15s,0.2s] hover:border-tk-border2 hover:shadow-[0_3px_12px_rgba(0,0,0,0.25)] hover:-translate-y-px active:cursor-grabbing"
     >
       {/* Top row */}
       <div className="flex items-start justify-between gap-2 mb-[7px]">
         <span className="font-mono text-[11px] font-semibold text-tk-text2 tracking-[0.04em]">
-          {ticket.ticket_id}
+          {ticket.ticket_id || ticket.codigo || '—'}
         </span>
         <span className={priBadge.cls}>{priBadge.label}</span>
       </div>
