@@ -5,3 +5,13 @@ node_modules
 .env*.local
 .next/
 DOCUMENTACION_TECNICA_HELPDESK.md
+
+# IDE / Claude worktrees temporales
+.claude/worktrees/
+
+# Scripts personales de diagnostico (suelen tener credenciales hardcodeadas)
+scratch/diag-*
+scratch/seed-it-*
+
+# Build cache
+tsconfig.tsbuildinfo
