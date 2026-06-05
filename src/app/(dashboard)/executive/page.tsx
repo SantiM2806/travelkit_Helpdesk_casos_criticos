@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState, useEffect, useCallback, FormEvent } from 'react';
+import React, { useState, useEffect, useCallback, useRef, FormEvent } from 'react';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import { createSupabaseBrowser } from '@/lib/supabase/client';
 
 const supabase = createSupabaseBrowser();
@@ -43,13 +44,18 @@ type Vista = 'it' | 'criticos';
 //   PAGE
 // ══════════════════════════════════════════════════════════════════════════
 export default function ExecutiveDashboard() {
+  const router = useRouter();
   const [userName,     setUserName]     = useState('');
+  const [userEmail,    setUserEmail]    = useState('');
+  const [userRole,     setUserRole]     = useState('');
   const [vista,        setVista]        = useState<Vista>('it');
   const [sidebarOpen,  setSidebarOpen]  = useState(true);
   const [proyectos,    setProyectos]    = useState<Proyecto[]>([]);
   const [loading,      setLoading]      = useState(true);
   const [selected,     setSelected]     = useState<Proyecto | null>(null);
   const [newIdeaOpen,  setNewIdeaOpen]  = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const userMenuRef = useRef<HTMLDivElement>(null);
 
   const loadProyectos = useCallback(async () => {
     const { data, error } = await supabase
@@ -67,21 +73,43 @@ export default function ExecutiveDashboard() {
       const email = data.user?.email || '';
       const nameFromEmail = email.split('@')[0].split('.').map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
       setUserName(meta?.full_name || meta?.name || nameFromEmail);
+      setUserEmail(email);
+      setUserRole((meta?.role as string) || '');
     });
     loadProyectos();
   }, [loadProyectos]);
 
-  // ESC cierra modales
+  // ESC cierra modales/menus
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
       if (e.key === 'Escape') {
         setSelected(null);
         setNewIdeaOpen(false);
+        setUserMenuOpen(false);
       }
     }
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, []);
+
+  // Click fuera cierra el user menu
+  useEffect(() => {
+    if (!userMenuOpen) return;
+    function onClick(e: MouseEvent) {
+      if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) {
+        setUserMenuOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', onClick);
+    return () => document.removeEventListener('mousedown', onClick);
+  }, [userMenuOpen]);
+
+  async function handleLogout() {
+    setUserMenuOpen(false);
+    await supabase.auth.signOut();
+    router.push('/login');
+    router.refresh();
+  }
 
   return (
     <div className="flex flex-col bg-[#fafafa] text-[#1a1a1a] font-sans min-h-screen">
@@ -122,8 +150,97 @@ export default function ExecutiveDashboard() {
         </button>
         <h1 className="text-[15px] font-semibold text-[#1a1a1a]">Dashboard Ejecutivo</h1>
         <span className="text-[12px] text-[#aaa] hidden sm:block">· Vista de iniciativas y críticos</span>
-        <div className="ml-auto flex items-center gap-3">
-          {userName && <span className="text-[13px] text-[#555] hidden md:block">{userName}</span>}
+
+        {/* ── USER MENU (avatar + dropdown con config / cerrar sesion) ── */}
+        <div className="ml-auto relative" ref={userMenuRef}>
+          <button
+            onClick={() => setUserMenuOpen(o => !o)}
+            className={`flex items-center gap-2 pl-1 pr-2 py-1 rounded-lg transition-all outline-none focus-visible:ring-2 focus-visible:ring-[#D32F2F]/40 ${
+              userMenuOpen ? 'bg-[#f5f5f5]' : 'hover:bg-[#fafafa]'
+            }`}
+            aria-haspopup="menu"
+            aria-expanded={userMenuOpen}
+          >
+            <div
+              className="w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-semibold bg-[#fff5f5] border border-[#D32F2F]/20"
+              style={{ color: '#D32F2F' }}
+            >
+              {(userName || userEmail || '?').charAt(0).toUpperCase()}
+            </div>
+            <span className="text-[13px] text-[#444] hidden md:block max-w-[140px] truncate">
+              {userName || 'Usuario'}
+            </span>
+            <svg
+              viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+              className={`w-3.5 h-3.5 text-[#888] transition-transform duration-200 hidden md:block ${userMenuOpen ? 'rotate-180' : ''}`}
+            >
+              <polyline points="6 9 12 15 18 9"/>
+            </svg>
+          </button>
+
+          {/* DROPDOWN */}
+          {userMenuOpen && (
+            <div
+              role="menu"
+              className="absolute right-0 top-[calc(100%+8px)] w-72 bg-white rounded-xl border border-[#ebebeb] shadow-[0_10px_40px_rgba(0,0,0,0.12)] overflow-hidden animate-in fade-in zoom-in-95 slide-in-from-top-1 duration-150 origin-top-right"
+            >
+              {/* Info del usuario */}
+              <div className="px-4 py-3.5 border-b border-[#f0f0f0] bg-[#fafafa]">
+                <div className="flex items-center gap-3">
+                  <div
+                    className="w-10 h-10 rounded-full flex items-center justify-center text-[14px] font-semibold bg-white border border-[#D32F2F]/20 flex-shrink-0"
+                    style={{ color: '#D32F2F' }}
+                  >
+                    {(userName || userEmail || '?').charAt(0).toUpperCase()}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[13px] font-semibold text-[#1a1a1a] truncate">{userName || 'Usuario'}</p>
+                    <p className="text-[11px] text-[#888] truncate">{userEmail || '—'}</p>
+                  </div>
+                </div>
+                {userRole && (
+                  <div className="mt-2.5 flex items-center gap-1.5">
+                    <span className="text-[9px] font-semibold text-[#aaa] uppercase tracking-widest">Rol</span>
+                    <span
+                      className="text-[10px] font-semibold px-1.5 py-0.5 rounded border uppercase tracking-wider"
+                      style={{ color: '#D32F2F', background: '#fff5f5', borderColor: 'rgba(211,47,47,0.2)' }}
+                    >
+                      {userRole}
+                    </span>
+                  </div>
+                )}
+              </div>
+
+              {/* Acciones */}
+              <div className="py-1.5">
+                <button
+                  role="menuitem"
+                  onClick={() => { setUserMenuOpen(false); /* TODO: abrir configuracion */ }}
+                  className="w-full flex items-center gap-2.5 px-4 py-2.5 text-[13px] text-[#444] hover:bg-[#fafafa] hover:text-[#1a1a1a] transition-colors"
+                >
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 text-[#888]">
+                    <circle cx="12" cy="12" r="3"/>
+                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                  </svg>
+                  Configuración
+                  <span className="ml-auto text-[9px] font-semibold text-[#bbb] uppercase tracking-wider">Próximamente</span>
+                </button>
+
+                <button
+                  role="menuitem"
+                  onClick={handleLogout}
+                  className="w-full flex items-center gap-2.5 px-4 py-2.5 text-[13px] text-[#666] hover:bg-[#fff5f5] hover:text-[#D32F2F] transition-colors"
+                >
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                    <polyline points="16 17 21 12 16 7"/>
+                    <line x1="21" y1="12" x2="9" y2="12"/>
+                  </svg>
+                  Cerrar sesión
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </header>
 
