@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import type { Ticket, EstadoFilter, PrioridadFilter, View, PendingMove, ToastItem, MovementLog } from '@/features/tickets/types';
 import { MOCK_DATA } from '@/features/tickets/actions/ticket.actions';
@@ -206,9 +207,20 @@ function HubView({ onEnterPipeline }: { onEnterPipeline: () => void }) {
    PÁGINA PRINCIPAL — Hub (admin) o Pipeline (resto)
 ══════════════════════════════════════════════════ */
 export default function Page() {
+  const searchParams = useSearchParams();
+  // `?view=pipeline` en la URL hace que el admin entre directo al Pipeline
+  // en lugar de ver el Hub (usado por el sidebar al hacer click en "Tickets").
+  const viewParam = searchParams.get('view');
+
   const [role,           setRole]           = useState<string | null>(null);
-  const [showPipeline,   setShowPipeline]   = useState(false);
+  const [showPipeline,   setShowPipeline]   = useState(viewParam === 'pipeline');
   const [roleResolved,   setRoleResolved]   = useState(false);
+
+  // Si el query param cambia (navegacion dentro de la app), actualizar el estado.
+  useEffect(() => {
+    if (viewParam === 'pipeline') setShowPipeline(true);
+    if (viewParam === 'hub')      setShowPipeline(false);
+  }, [viewParam]);
 
   /* ── Pipeline state ── */
   const [allTickets,      setAllTickets]      = useState<Ticket[]>([]);
@@ -308,8 +320,12 @@ export default function Page() {
         (activeEstado === 'Resuelto'   && norm === 'resuelto') ||
         (activeEstado === 'Otra área'  && norm === 'otrarea');
       const matchPrioridad = activePrioridad === 'Todas' || t.prioridad.toLowerCase() === activePrioridad.toLowerCase();
-      const matchSearch = !q || t.ticket_id.toLowerCase().includes(q) || t.email.toLowerCase().includes(q) ||
-        t.descripcion.toLowerCase().includes(q) || t.categoria.toLowerCase().includes(q);
+      const matchSearch = !q
+        || (t.ticket_id  || '').toLowerCase().includes(q)
+        || (t.codigo     || '').toLowerCase().includes(q)
+        || (t.email      || '').toLowerCase().includes(q)
+        || (t.descripcion || '').toLowerCase().includes(q)
+        || (t.categoria  || '').toLowerCase().includes(q);
       return matchEstado && matchPrioridad && matchSearch;
     }));
   }, [allTickets, activeEstado, activePrioridad, searchQuery]);

@@ -8,7 +8,8 @@ import { createSupabaseBrowser } from '@/lib/supabase/client';
 
 const NAV = [
   {
-    href: '/',
+    href: '/?view=pipeline',
+    matchPath: '/',
     label: 'Tickets',
     exact: true,
     icon: (
@@ -20,6 +21,7 @@ const NAV = [
   },
   {
     href: '/clientes',
+    matchPath: '/clientes',
     label: 'Clientes',
     exact: false,
     icon: (
@@ -29,17 +31,23 @@ const NAV = [
       </svg>
     ),
   },
-  {
-    href: '/executive',
-    label: 'Data',
-    exact: false,
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 flex-shrink-0">
-        <path d="M21.21 15.89A10 10 0 1 1 8 2.83"/>
-        <path d="M22 12A10 10 0 0 0 12 2v10z"/>
-      </svg>
-    ),
-  },
+  // -------------------------------------------------------------------------
+  // "Data" temporalmente oculto. Cuando se decida darle uso (ver con el
+  // gerente cual sera la fuente de datos del dashboard ejecutivo), descomentar
+  // este bloque.
+  // -------------------------------------------------------------------------
+  // {
+  //   href: '/executive',
+  //   matchPath: '/executive',
+  //   label: 'Data',
+  //   exact: false,
+  //   icon: (
+  //     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 flex-shrink-0">
+  //       <path d="M21.21 15.89A10 10 0 1 1 8 2.83"/>
+  //       <path d="M22 12A10 10 0 0 0 12 2v10z"/>
+  //     </svg>
+  //   ),
+  // },
 ];
 
 const SUN_ICON = (
@@ -58,7 +66,12 @@ const MOON_ICON = (
   </svg>
 );
 
-export default function Sidebar() {
+interface SidebarProps {
+  collapsed: boolean;
+  onToggle: () => void;
+}
+
+export default function Sidebar({ collapsed, onToggle }: SidebarProps) {
   const pathname = usePathname();
   const router   = useRouter();
   const [userName, setUserName] = useState('');
@@ -96,39 +109,71 @@ export default function Sidebar() {
 
   return (
     <aside
-      className="fixed left-0 top-0 w-[220px] h-screen z-40 flex flex-col bg-tk-bg2 border-r border-tk-border"
+      className={`fixed left-0 top-0 h-screen z-40 flex flex-col bg-tk-bg2 border-r border-tk-border transition-[width] duration-300 ease-out ${
+        collapsed ? 'w-[60px]' : 'w-[220px]'
+      }`}
     >
-      {/* Brand */}
-      <div className="h-14 flex items-center px-5 gap-2.5 flex-shrink-0 border-b border-tk-border">
-        <Image
-          src="/travelkit-logo_nbtjgf-67feae5fe38949.68302424.png"
-          alt="Travelkit"
-          width={90}
-          height={28}
-          className="h-6 w-auto object-contain"
-          priority
-        />
-        <span className="font-mono text-[10px] font-semibold tracking-[0.12em] text-tk-text3 uppercase">
-          <span style={{ color: '#D32F2F' }}>IT</span> HUB
-        </span>
+      {/* Brand + toggle */}
+      <div className="h-14 flex items-center flex-shrink-0 border-b border-tk-border overflow-hidden">
+        {/* Toggle button (siempre visible) */}
+        <button
+          onClick={onToggle}
+          aria-label={collapsed ? 'Abrir menú' : 'Cerrar menú'}
+          title={collapsed ? 'Abrir menú' : 'Cerrar menú'}
+          className="w-[60px] h-full flex items-center justify-center text-tk-text2 hover:text-tk-text hover:bg-tk-bg3 transition-colors flex-shrink-0"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
+            {collapsed ? (
+              <>
+                <line x1="3" y1="12" x2="21" y2="12"/>
+                <polyline points="9 18 15 12 9 6"/>
+              </>
+            ) : (
+              <>
+                <line x1="3" y1="6" x2="21" y2="6"/>
+                <line x1="3" y1="12" x2="21" y2="12"/>
+                <line x1="3" y1="18" x2="21" y2="18"/>
+              </>
+            )}
+          </svg>
+        </button>
+
+        {/* Logo + label (solo visibles cuando expandido) */}
+        <div className={`flex items-center gap-2.5 transition-opacity duration-200 whitespace-nowrap ${collapsed ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
+          <Image
+            src="/travelkit-logo_nbtjgf-67feae5fe38949.68302424.png"
+            alt="Travelkit"
+            width={90}
+            height={28}
+            className="h-6 w-auto object-contain"
+            priority
+          />
+          <span className="font-mono text-[10px] font-semibold tracking-[0.12em] text-tk-text3 uppercase">
+            <span style={{ color: '#D32F2F' }}>IT</span> HUB
+          </span>
+        </div>
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 p-3 space-y-0.5 overflow-y-auto">
+      <nav className="flex-1 p-3 space-y-0.5 overflow-y-auto overflow-x-hidden">
         {NAV.map(item => {
-          const active = item.exact ? pathname === item.href : pathname.startsWith(item.href);
+          const matchTarget = item.matchPath || item.href;
+          const active = item.exact ? pathname === matchTarget : pathname.startsWith(matchTarget);
           return (
             <Link
               key={item.href}
               href={item.href}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] font-medium transition-all duration-150 border ${
+              title={collapsed ? item.label : undefined}
+              className={`flex items-center gap-3 ${collapsed ? 'justify-center px-0' : 'px-3'} py-2.5 rounded-lg text-[13px] font-medium transition-all duration-150 border ${
                 active
                   ? 'bg-[rgba(211,47,47,0.1)] border-[rgba(211,47,47,0.25)] text-[#D32F2F]'
                   : 'text-tk-text2 border-transparent hover:bg-tk-bg3 hover:text-tk-text'
               }`}
             >
               {item.icon}
-              {item.label}
+              <span className={`whitespace-nowrap transition-[opacity,transform] duration-200 ${collapsed ? 'opacity-0 -translate-x-2 pointer-events-none w-0 overflow-hidden' : 'opacity-100 translate-x-0'}`}>
+                {item.label}
+              </span>
             </Link>
           );
         })}
@@ -141,33 +186,38 @@ export default function Sidebar() {
         <button
           onClick={toggleTheme}
           title={theme === 'dark' ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}
-          className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-tk-text2 hover:bg-tk-bg3 hover:text-tk-text text-[12px] font-mono uppercase tracking-[0.06em] transition-all duration-150 border border-transparent hover:border-tk-border2 cursor-pointer"
+          className={`w-full flex items-center gap-2.5 ${collapsed ? 'justify-center px-0' : 'px-3'} py-2 rounded-lg text-tk-text2 hover:bg-tk-bg3 hover:text-tk-text text-[12px] font-mono uppercase tracking-[0.06em] transition-all duration-150 border border-transparent hover:border-tk-border2 cursor-pointer`}
         >
           {theme === 'dark' ? SUN_ICON : MOON_ICON}
-          {theme === 'dark' ? 'Modo claro' : 'Modo oscuro'}
+          <span className={`whitespace-nowrap transition-[opacity,transform] duration-200 ${collapsed ? 'opacity-0 -translate-x-2 pointer-events-none w-0 overflow-hidden' : 'opacity-100 translate-x-0'}`}>
+            {theme === 'dark' ? 'Modo claro' : 'Modo oscuro'}
+          </span>
         </button>
 
         {/* User row */}
         {userName && (
-          <div className="flex items-center gap-2 px-3 py-2">
-            <div className="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-mono font-semibold flex-shrink-0 bg-tk-bg3 border border-tk-border2" style={{ color: '#D32F2F' }}>
+          <div className={`flex items-center gap-2 ${collapsed ? 'justify-center px-0' : 'px-3'} py-2`}>
+            <div className="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-mono font-semibold flex-shrink-0 bg-tk-bg3 border border-tk-border2" style={{ color: '#D32F2F' }} title={collapsed ? userName : undefined}>
               {userName.charAt(0).toUpperCase()}
             </div>
-            <span className="font-mono text-[11px] text-tk-text2 truncate flex-1">{userName}</span>
+            <span className={`font-mono text-[11px] text-tk-text2 truncate flex-1 transition-opacity duration-200 ${collapsed ? 'opacity-0 w-0 overflow-hidden' : 'opacity-100'}`}>{userName}</span>
           </div>
         )}
 
         {/* Logout */}
         <button
           onClick={handleLogout}
-          className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-tk-text3 hover:text-tk-red hover:bg-tk-red-bg text-[11px] font-mono tracking-[0.06em] uppercase transition-all duration-150 border border-transparent hover:border-tk-red/30 cursor-pointer"
+          title={collapsed ? 'Cerrar sesión' : undefined}
+          className={`w-full flex items-center gap-2.5 ${collapsed ? 'justify-center px-0' : 'px-3'} py-2 rounded-lg text-tk-text3 hover:text-tk-red hover:bg-tk-red-bg text-[11px] font-mono tracking-[0.06em] uppercase transition-all duration-150 border border-transparent hover:border-tk-red/30 cursor-pointer`}
         >
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5 flex-shrink-0">
             <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
             <polyline points="16 17 21 12 16 7"/>
             <line x1="21" y1="12" x2="9" y2="12"/>
           </svg>
-          Cerrar sesión
+          <span className={`whitespace-nowrap transition-[opacity,transform] duration-200 ${collapsed ? 'opacity-0 -translate-x-2 pointer-events-none w-0 overflow-hidden' : 'opacity-100 translate-x-0'}`}>
+            Cerrar sesión
+          </span>
         </button>
 
       </div>
