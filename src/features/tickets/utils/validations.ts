@@ -1,6 +1,8 @@
 const ALLOWED_EMAIL_DOMAINS = ['travelkit.co', 'travelkit.us', 'travelkit.com', 'mitravelkit.com'];
 
 const ALLOWED_CATEGORIAS = ['Software', 'Hardware', 'Conectividad', 'Accesos', 'Teams', 'Correo'];
+export const ALLOWED_TIPOS_SOLICITUD = ['Comercial', 'Sistem', 'Claims', 'Gestion de planes', 'Calidad'] as const;
+export type TipoSolicitud = typeof ALLOWED_TIPOS_SOLICITUD[number];
 const ALLOWED_PRIORIDADES = ['Alta', 'Media', 'Baja'];
 
 const LIMITS = {

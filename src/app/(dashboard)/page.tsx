@@ -8,8 +8,9 @@ import type { Ticket, EstadoFilter, PrioridadFilter, View, PendingMove, ToastIte
 import { MOCK_DATA } from '@/features/tickets/actions/ticket.actions';
 import { normalizeEstado, getSyncTimeStr } from '@/features/tickets/utils/formatters';
 import { createSupabaseBrowser } from '@/lib/supabase/client';
+import { createCasosCriticosClient } from '@/lib/supabase/casos-criticos';
 
-const supabase = createSupabaseBrowser();
+const supabase = createCasosCriticosClient();
 
 import Header         from '@/components/layout/Header';
 import ConfigBanner   from '@/components/layout/ConfigBanner';
@@ -315,17 +316,18 @@ export default function Page() {
       const norm = normalizeEstado(t.estado);
       const matchEstado =
         activeEstado === 'Todos' ||
-        (activeEstado === 'Abierto'    && norm === 'abierto')  ||
-        (activeEstado === 'En proceso' && norm === 'proceso')  ||
-        (activeEstado === 'Resuelto'   && norm === 'resuelto') ||
-        (activeEstado === 'Otra área'  && norm === 'otrarea');
+        (activeEstado === 'Abierto'                  && norm === 'abierto')     ||
+        (activeEstado === 'En gestion del proveedor' && norm === 'gestion')     ||
+        (activeEstado === 'Información cliente'      && norm === 'infocliente') ||
+        (activeEstado === 'Finalizado'               && norm === 'finalizado');
       const matchPrioridad = activePrioridad === 'Todas' || t.prioridad.toLowerCase() === activePrioridad.toLowerCase();
       const matchSearch = !q
-        || (t.ticket_id  || '').toLowerCase().includes(q)
-        || (t.codigo     || '').toLowerCase().includes(q)
-        || (t.email      || '').toLowerCase().includes(q)
-        || (t.descripcion || '').toLowerCase().includes(q)
-        || (t.categoria  || '').toLowerCase().includes(q);
+        || (t.ticket_id      || '').toLowerCase().includes(q)
+        || (t.codigo         || '').toLowerCase().includes(q)
+        || (t.cliente        || '').toLowerCase().includes(q)
+        || (t.agencia        || '').toLowerCase().includes(q)
+        || (t.tipo_solicitud || '').toLowerCase().includes(q)
+        || (t.descripcion    || '').toLowerCase().includes(q);
       return matchEstado && matchPrioridad && matchSearch;
     }));
   }, [allTickets, activeEstado, activePrioridad, searchQuery]);

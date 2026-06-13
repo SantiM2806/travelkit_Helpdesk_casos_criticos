@@ -33,11 +33,11 @@ export default function TicketTable({ filteredTickets, allTickets, isLoading, on
       <table className="w-full border-collapse text-[13px]">
         <thead>
           <tr>
-            {['Ticket ID', 'Solicitante', 'Categoría', 'Prioridad', 'Asunto', 'Estado', 'Fecha'].map((h, i) => (
+            {['Caso ID', 'Cliente', 'Agencia', 'Tipo', 'Prioridad', 'Estado', 'Responsable'].map((h, i) => (
               <th
                 key={h}
                 className={`font-mono text-[10px] font-semibold tracking-[0.12em] uppercase text-tk-text3 py-3 px-4 text-left bg-tk-bg2 border-b border-tk-border whitespace-nowrap select-none first:pl-5 last:pr-5 ${
-                  [2, 4, 6].includes(i) ? 'hidden md:table-cell' : ''
+                  [2, 3, 6].includes(i) ? 'hidden md:table-cell' : ''
                 }`}
               >
                 {h}
@@ -59,13 +59,12 @@ export default function TicketTable({ filteredTickets, allTickets, isLoading, on
             </tr>
           ))}
 
-          {/* Sin tickets */}
+          {/* Sin casos */}
           {showEmpty && (
             <tr>
               <td colSpan={7} className="py-14 text-center border-b-0">
-                <span className="text-[32px] block mb-3 opacity-30">📭</span>
-                <div className="font-mono text-[12px] font-semibold tracking-[0.08em] uppercase text-tk-text3">Sin tickets registrados</div>
-                <div className="text-[12px] text-tk-text3 mt-1">El Sheet no contiene datos aún.</div>
+                <div className="font-mono text-[12px] font-semibold tracking-[0.08em] uppercase text-tk-text3">Sin casos registrados</div>
+                <div className="text-[12px] text-tk-text3 mt-1">Aún no hay casos críticos en el sistema.</div>
               </td>
             </tr>
           )}
@@ -74,19 +73,18 @@ export default function TicketTable({ filteredTickets, allTickets, isLoading, on
           {showNoResults && (
             <tr>
               <td colSpan={7} className="py-14 text-center border-b-0">
-                <span className="text-[32px] block mb-3 opacity-30">🔍</span>
                 <div className="font-mono text-[12px] font-semibold tracking-[0.08em] uppercase text-tk-text3">Sin resultados</div>
-                <div className="text-[12px] text-tk-text3 mt-1">Ningún ticket coincide con los filtros aplicados.</div>
+                <div className="text-[12px] text-tk-text3 mt-1">Ningún caso coincide con los filtros aplicados.</div>
               </td>
             </tr>
           )}
 
           {/* Rows */}
           {showRows && filteredTickets.map((t, i) => {
-            const norm      = normalizeEstado(t.estado);
-            const priBadge  = badgePrioridad(t.prioridad);
-            const estBadge  = badgeEstado(norm, t.estado);
-            const catBadge  = badgeCat(t.categoria);
+            const norm     = normalizeEstado(t.estado);
+            const priBadge = badgePrioridad(t.prioridad);
+            const estBadge = badgeEstado(norm, t.estado);
+            const tipoBadge = badgeCat(t.tipo_solicitud || t.categoria || '');
 
             return (
               <tr
@@ -95,41 +93,30 @@ export default function TicketTable({ filteredTickets, allTickets, isLoading, on
                 className="ticket-row border-b border-tk-border last:border-b-0 hover:bg-tk-bg3 cursor-pointer"
                 style={{ transitionDelay: `${i * 30}ms` }}
               >
+                {/* Caso ID */}
                 <td className="py-3 px-4 pl-5 font-mono text-xs text-tk-text2 whitespace-nowrap">
-                  <span className="inline-flex items-center gap-1.5">
-                    {t.ticket_id || t.codigo || <span className="text-tk-text3">—</span>}
-                    {t.imagen_url && (
-                      <a
-                        href={t.imagen_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        title="Ver imagen adjunta"
-                        onClick={e => e.stopPropagation()}
-                        className="text-tk-text3 hover:text-tk-accent2 transition-colors duration-[0.12s]"
-                      >
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="w-3 h-3">
-                          <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/>
-                          <polyline points="21 15 16 10 5 21"/>
-                        </svg>
-                      </a>
-                    )}
-                  </span>
+                  {t.ticket_id || t.codigo || <span className="text-tk-text3">—</span>}
                 </td>
-                <td className="py-3 px-4 text-[13px] text-tk-text whitespace-nowrap max-w-[220px] overflow-hidden text-ellipsis">
-                  {t.full_name || t.email || <span className="text-tk-text3">—</span>}
+                {/* Cliente */}
+                <td className="py-3 px-4 text-[13px] text-tk-text whitespace-nowrap max-w-[200px] overflow-hidden text-ellipsis">
+                  {t.cliente || t.full_name || <span className="text-tk-text3">—</span>}
                 </td>
+                {/* Agencia */}
+                <td className="py-3 px-4 text-[13px] text-tk-text2 whitespace-nowrap max-w-[180px] overflow-hidden text-ellipsis hidden md:table-cell">
+                  {t.agencia || t.department || <span className="text-tk-text3">—</span>}
+                </td>
+                {/* Tipo */}
                 <td className="py-3 px-4 hidden md:table-cell">
-                  {catBadge
-                    ? <span className={catBadge.cls}>{catBadge.label}</span>
+                  {tipoBadge
+                    ? <span className={tipoBadge.cls}>{tipoBadge.label}</span>
                     : <span className="text-tk-text3">—</span>
                   }
                 </td>
+                {/* Prioridad */}
                 <td className="py-3 px-4">
                   <span className={priBadge.cls}>{priBadge.label}</span>
                 </td>
-                <td className="py-3 px-4 text-xs text-tk-text2 max-w-[280px] overflow-hidden text-ellipsis whitespace-nowrap hidden md:table-cell">
-                  {t.subject || t.descripcion || <span className="text-tk-text3">—</span>}
-                </td>
+                {/* Estado */}
                 <td className="py-3 px-4">
                   <span className={estBadge.cls}>
                     {estBadge.dotCls && (
@@ -138,8 +125,9 @@ export default function TicketTable({ filteredTickets, allTickets, isLoading, on
                     {estBadge.label}
                   </span>
                 </td>
+                {/* Responsable */}
                 <td className="py-3 px-4 pr-5 font-mono text-[11px] text-tk-text3 whitespace-nowrap hidden md:table-cell">
-                  {formatDate(t.timestamp)}
+                  {t.responsable || <span className="text-tk-text3">—</span>}
                 </td>
               </tr>
             );

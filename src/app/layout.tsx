@@ -18,7 +18,7 @@ const ibmMono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'IT / HELPDESK · TRAVELKIT COLOMBIA',
+  title: 'TRAVELKIT · CASOS CRÍTICOS',
   icons: { icon: '/favicon.svg' },
 };
 

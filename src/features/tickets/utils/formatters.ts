@@ -1,10 +1,18 @@
 const ESTADO_NORM_MAP: Record<string, string> = {
-  abierto:     'abierto',
-  'en proceso':'proceso',
-  proceso:     'proceso',
-  resuelto:    'resuelto',
-  'otra área': 'otrarea',
-  otra:        'otrarea',
+  abierto:                    'abierto',
+  'en gestion del proveedor': 'gestion',
+  'gestion del proveedor':    'gestion',
+  gestion:                    'gestion',
+  'informacion cliente':      'infocliente',
+  'información cliente':      'infocliente',
+  infocliente:                'infocliente',
+  finalizado:                 'finalizado',
+  // legacy
+  'en proceso':               'gestion',
+  proceso:                    'gestion',
+  resuelto:                   'finalizado',
+  'otra área':                'infocliente',
+  otra:                       'infocliente',
 };
 
 export function normalizeEstado(v: string): string {
@@ -40,10 +48,10 @@ const PRIORIDAD_CLASS: Record<string, string> = {
 };
 
 const ESTADO_CLASS: Record<string, string> = {
-  abierto:  'bg-tk-red-bg    text-tk-red    border border-[rgba(239,83,80,0.2)]',
-  proceso:  'bg-tk-orange-bg text-tk-orange  border border-[rgba(255,167,38,0.2)]',
-  resuelto: 'bg-tk-green-bg  text-tk-green  border border-[rgba(76,175,138,0.2)]',
-  otrarea:  'bg-tk-violet-bg text-tk-violet  border border-[rgba(149,117,205,0.2)]',
+  abierto:     'bg-tk-red-bg    text-tk-red    border border-[rgba(239,83,80,0.2)]',
+  gestion:     'bg-tk-orange-bg text-tk-orange  border border-[rgba(255,167,38,0.2)]',
+  infocliente: 'bg-tk-amber-bg  text-tk-amber  border border-[rgba(255,112,67,0.2)]',
+  finalizado:  'bg-tk-green-bg  text-tk-green  border border-[rgba(76,175,138,0.2)]',
 };
 
 const CAT_CLASS = 'bg-tk-blue-bg text-tk-blue border border-[rgba(100,181,246,0.2)]';

@@ -12,15 +12,15 @@ interface FiltersRowProps {
   onSearchChange:    (v: string) => void;
 }
 
-const ESTADOS:    EstadoFilter[]    = ['Todos', 'Abierto', 'En proceso', 'Resuelto', 'Otra área'];
+const ESTADOS:    EstadoFilter[]    = ['Todos', 'Abierto', 'En gestion del proveedor', 'Información cliente', 'Finalizado'];
 const PRIORIDADES: PrioridadFilter[] = ['Todas', 'Alta', 'Media', 'Baja'];
 
 const ESTADO_ACTIVE: Record<string, string> = {
-  Todos:       'bg-[rgba(79,195,247,0.1)]  border-tk-accent  text-tk-accent',
-  Abierto:     'bg-[rgba(239,83,80,0.1)]   border-tk-red     text-tk-red',
-  'En proceso':'bg-[rgba(255,167,38,0.1)]  border-tk-orange  text-tk-orange',
-  Resuelto:    'bg-[rgba(76,175,138,0.1)]  border-tk-green   text-tk-green',
-  'Otra área': 'bg-[rgba(149,117,205,0.1)] border-tk-violet  text-tk-violet',
+  Todos:                      'bg-[rgba(79,195,247,0.1)]  border-tk-accent  text-tk-accent',
+  Abierto:                    'bg-[rgba(239,83,80,0.1)]   border-tk-red     text-tk-red',
+  'En gestion del proveedor': 'bg-[rgba(255,167,38,0.1)]  border-tk-orange  text-tk-orange',
+  'Información cliente':      'bg-[rgba(255,112,67,0.1)]  border-tk-amber   text-tk-amber',
+  Finalizado:                 'bg-[rgba(76,175,138,0.1)]  border-tk-green   text-tk-green',
 };
 
 const PRIORIDAD_ACTIVE: Record<string, string> = {
@@ -88,7 +88,7 @@ export default function FiltersRow({ activeEstado, activePrioridad, searchQuery,
           type="text"
           defaultValue={searchQuery}
           onChange={handleSearch}
-          placeholder="Buscar ticket, email…"
+          placeholder="Buscar caso, cliente, agencia…"
           className="search-input w-full sm:w-[220px] pl-[30px] pr-2.5 py-[6px] bg-tk-bg3 border border-tk-border rounded text-tk-text font-mono text-xs tracking-[0.02em] transition-[border-color,background] duration-[0.15s]"
         />
       </div>

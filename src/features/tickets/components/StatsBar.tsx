@@ -21,7 +21,7 @@ interface StatCell {
 
 const CELLS: StatCell[] = [
   {
-    key: 'total', label: 'Total tickets', id: 'statTotal', barId: 'barTotal',
+    key: 'total', label: 'Total casos', id: 'statTotal', barId: 'barTotal',
     colorClass: 'text-tk-accent', barColor: 'bg-tk-accent',
     getValue: t => t.length,
     getWidth: (_, total) => total > 0 ? '100%' : '0%',
@@ -33,15 +33,15 @@ const CELLS: StatCell[] = [
     getWidth: (val, total) => total ? `${(val / total) * 100}%` : '0%',
   },
   {
-    key: 'proceso', label: 'En proceso', id: 'statProceso', barId: 'barProceso',
+    key: 'gestion', label: 'En gestión', id: 'statGestion', barId: 'barGestion',
     colorClass: 'text-tk-orange', barColor: 'bg-tk-orange',
-    getValue: t => t.filter(x => normalizeEstado(x.estado) === 'proceso').length,
+    getValue: t => t.filter(x => normalizeEstado(x.estado) === 'gestion').length,
     getWidth: (val, total) => total ? `${(val / total) * 100}%` : '0%',
   },
   {
-    key: 'resuelto', label: 'Resueltos', id: 'statResuelto', barId: 'barResuelto',
+    key: 'finalizado', label: 'Finalizados', id: 'statFinalizado', barId: 'barFinalizado',
     colorClass: 'text-tk-green', barColor: 'bg-tk-green',
-    getValue: t => t.filter(x => normalizeEstado(x.estado) === 'resuelto').length,
+    getValue: t => t.filter(x => normalizeEstado(x.estado) === 'finalizado').length,
     getWidth: (val, total) => total ? `${(val / total) * 100}%` : '0%',
   },
 ];
