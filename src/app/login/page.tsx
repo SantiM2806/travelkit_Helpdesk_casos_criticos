@@ -70,7 +70,7 @@ export default function LoginPage() {
           />
           <div className="text-center">
             <h1 className="text-[18px] font-semibold text-[#1a1a1a] leading-tight">
-              Portal de Soporte IT
+              Portal Casos Críticos
             </h1>
             <p className="text-[13px] text-[#888] mt-0.5">
               Ingresa con tus credenciales corporativas
@@ -197,7 +197,7 @@ export default function LoginPage() {
         {/* Footer */}
         <div className="px-8 pb-6 text-center">
           <p className="text-[12px] text-[#aaa]">
-            Acceso restringido · Solo personal IT autorizado
+            Acceso restringido · Solo personal TRAVELKIT autorizado
           </p>
         </div>
       </div>
