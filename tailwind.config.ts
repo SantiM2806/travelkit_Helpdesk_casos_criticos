@@ -9,8 +9,25 @@ const config: Config = {
       fontFamily: {
         sans: ['var(--font-sans)', 'IBM Plex Sans', 'sans-serif'],
         mono: ['var(--font-ibm-mono)', 'IBM Plex Mono', 'monospace'],
+        // Travelkit CRM (IDENTIDAD-VISUAL.md): tema claro con Inter
+        inter: ['var(--font-inter)', 'Inter', 'system-ui', 'sans-serif'],
       },
       colors: {
+        // ── Sistema de marca claro (IDENTIDAD-VISUAL.md) ──
+        brand: {
+          50: '#FEF2F2', 100: '#FEE2E2', 200: '#FECACA', 300: '#FCA5A5',
+          400: '#F87171', 500: '#EF4444', 600: '#E30613', 700: '#C70511',
+          800: '#A1040E', 900: '#7F030B',
+        },
+        success: '#10B981',
+        warning: '#F59E0B',
+        danger:  '#DC2626',
+        info:    '#3B82F6',
+        'tk-surface':   '#FAFAFA',
+        'tk-card-bd':   '#E5E7EB',
+        'tk-ink':       '#0A0A0A',
+        'tk-ink2':      '#6B7280',
+        'tk-ink3':      '#9CA3AF',
         'tk-bg':        'var(--bg)',
         'tk-bg2':       'var(--bg2)',
         'tk-bg3':       'var(--bg3)',
@@ -45,6 +62,9 @@ const config: Config = {
         'toast-out':    'toastOut 0.28s ease forwards',
         'fade-up':      'fadeUp 0.38s cubic-bezier(0.22,1,0.36,1) forwards',
         'fade-in':      'fadeIn 0.25s ease forwards',
+        // ── IDENTIDAD-VISUAL.md ──
+        'slide-up':     'slideUpFade 0.4s cubic-bezier(0.22,1,0.36,1) forwards',
+        'pulse-dot':    'pulseDot 2s ease-in-out infinite',
       },
     },
   },

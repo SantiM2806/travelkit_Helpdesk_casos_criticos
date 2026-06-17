@@ -340,3 +340,33 @@
   transition: width 0.8s ease 0.1s;
   border-radius: 0 2px 2px 0;
 }
+/* ══════════════════════════════════════════════════
+   TRAVELKIT CRM — TEMA CLARO (IDENTIDAD-VISUAL.md)
+   Ámbito: módulo /casos (clase .tk-crm)
+══════════════════════════════════════════════════ */
+.tk-crm {
+  font-family: var(--font-inter), Inter, system-ui, sans-serif;
+  font-feature-settings: "rlig" 1, "calt" 1, "cv11" 1;
+}
+
+@keyframes slideUpFade {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes pulseDot {
+  0%, 100% { transform: scale(1);   opacity: 1; }
+  50%      { transform: scale(1.4); opacity: 0.4; }
+}
+
+/* Entrada secuencial de secciones */
+.stagger-1 { animation-delay: 0ms; }
+.stagger-2 { animation-delay: 80ms; }
+.stagger-3 { animation-delay: 160ms; }
+.stagger-4 { animation-delay: 240ms; }
+.stagger-5 { animation-delay: 320ms; }
+.stagger-6 { animation-delay: 400ms; }
+
+@keyframes slideInRight {
+  from { transform: translateX(100%); }
+  to   { transform: translateX(0); }
+}

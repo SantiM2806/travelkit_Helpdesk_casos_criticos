@@ -1,7 +1,14 @@
 import type { Metadata } from 'next';
-import { IBM_Plex_Sans, IBM_Plex_Mono } from 'next/font/google';
+import { IBM_Plex_Sans, IBM_Plex_Mono, Inter } from 'next/font/google';
 import './globals.css';
 import { cn } from "@/lib/utils";
+
+// Tema claro Travelkit CRM (IDENTIDAD-VISUAL.md) — usado por /casos
+const inter = Inter({
+  subsets: ['latin'],
+  variable: '--font-inter',
+  display: 'swap',
+});
 
 const ibmSans = IBM_Plex_Sans({
   subsets: ['latin'],
@@ -27,7 +34,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html
       lang="es"
       suppressHydrationWarning
-      className={cn(ibmSans.variable, ibmMono.variable, "font-sans")}
+      className={cn(ibmSans.variable, ibmMono.variable, inter.variable, "font-sans")}
     >
       {/* Aplica el tema guardado antes del primer paint para evitar flash */}
       <head>

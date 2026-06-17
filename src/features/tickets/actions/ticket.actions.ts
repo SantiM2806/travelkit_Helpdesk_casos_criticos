@@ -7,7 +7,7 @@ function daysAgo(d: number, h: number, m: number): string {
   return t.toISOString();
 }
 
-export const MOCK_DATA: Ticket[] = [
+const MOCK_SEED: Omit<Ticket, 'id'>[] = [
   { ticket_id:'TK-0001', timestamp: daysAgo(0,8,14),  email:'m.torres@travelkit.us',   categoria:'Conectividad', prioridad:'Alta',  descripcion:'No puedo conectarme al VPN desde casa, error 800.',                 estado:'Abierto',    responsable: null },
   { ticket_id:'TK-0002', timestamp: daysAgo(0,9,32),  email:'c.ramirez@travelkit.us',  categoria:'Software',     prioridad:'Alta',  descripcion:'Outlook no abre, cierra solo al iniciar. Reinstalé y persiste.',    estado:'Abierto',    responsable: null },
   { ticket_id:'TK-0003', timestamp: daysAgo(1,10,5),  email:'l.perez@travelkit.us',    categoria:'Accesos',      prioridad:'Alta',  descripcion:'Bloqueado del sistema de reservas tras cambio de contraseña.',      estado:'Abierto',    responsable: null },
@@ -27,3 +27,9 @@ export const MOCK_DATA: Ticket[] = [
   { ticket_id:'TK-0017', timestamp: daysAgo(6,8,45),  email:'o.leon@travelkit.us',     categoria:'Teams',        prioridad:'Baja',  descripcion:'Canal de Teams de operaciones no aparece en el listado del equipo.', estado:'Resuelto',   responsable: null },
   { ticket_id:'TK-0018', timestamp: daysAgo(7,10,30), email:'m.torres@travelkit.us',   categoria:'Hardware',     prioridad:'Baja',  descripcion:'Mouse USB sin respuesta, funciona en otro equipo (posible puerto).',  estado:'Resuelto',   responsable: null },
 ];
+
+// Cada mock recibe un id sintético (la PK real viene de Supabase).
+export const MOCK_DATA: Ticket[] = MOCK_SEED.map((t, i) => ({
+  id: `mock-${String(i + 1).padStart(4, '0')}`,
+  ...t,
+}));
