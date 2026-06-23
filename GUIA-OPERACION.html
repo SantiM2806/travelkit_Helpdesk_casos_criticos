@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guía de Operación — Casos Críticos Travelkit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --brand:#E30613; --brand-700:#C70511; --ink:#0A0A0A; --ink2:#6B7280; --ink3:#9CA3AF;
+    --border:#E5E7EB; --surface:#FAFAFA; --bg:#FFFFFF;
+    --red:#DC2626; --blue:#3B82F6; --amber:#F59E0B; --green:#10B981;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:var(--surface); color:var(--ink);
+    font-family:'Inter',system-ui,-apple-system,sans-serif; line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:840px; margin:0 auto; padding:48px 24px 80px;}
+  header.cover{
+    background:var(--bg); border:1px solid var(--border); border-radius:16px;
+    padding:40px; margin-bottom:32px; box-shadow:0 1px 4px rgba(0,0,0,.05);
+  }
+  .logo{font-weight:900; letter-spacing:-.02em; color:var(--brand); font-size:34px;}
+  .cover h1{font-size:30px; font-weight:700; letter-spacing:-.025em; margin:18px 0 6px;}
+  .cover p{color:var(--ink2); margin:0; font-size:15px;}
+  .meta{margin-top:18px; padding-top:16px; border-top:1px solid var(--border); font-size:13px; color:var(--ink3);}
+  .meta code{background:var(--surface); padding:2px 7px; border-radius:6px; color:var(--brand-700); font-size:12px;}
+
+  section{
+    background:var(--bg); border:1px solid var(--border); border-radius:16px;
+    padding:32px; margin-bottom:24px; box-shadow:0 1px 4px rgba(0,0,0,.05);
+  }
+  .tag{
+    display:inline-block; font-size:11px; font-weight:700; text-transform:uppercase;
+    letter-spacing:.08em; color:var(--brand); background:#FEF2F2; padding:4px 10px;
+    border-radius:999px; margin-bottom:14px;
+  }
+  h2{font-size:22px; font-weight:700; letter-spacing:-.02em; margin:0 0 4px;}
+  h3{font-size:16px; font-weight:600; margin:28px 0 8px; color:var(--ink);}
+  h3:first-of-type{margin-top:16px;}
+  p,li{font-size:15px; color:#27272a;}
+  ol,ul{padding-left:22px;}
+  li{margin:4px 0;}
+  strong{font-weight:600;}
+  .note{
+    border-left:4px solid var(--brand); background:#FEF2F2; border-radius:0 8px 8px 0;
+    padding:12px 16px; margin:16px 0; font-size:14px; color:#7F030B;
+  }
+  table{width:100%; border-collapse:collapse; margin:14px 0; font-size:14px;}
+  th,td{text-align:left; padding:10px 12px; border-bottom:1px solid var(--border);}
+  th{font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:var(--ink3); background:var(--surface);}
+  .badge{display:inline-block; font-size:12px; font-weight:600; padding:3px 10px; border-radius:999px;}
+  .b-red{background:#FEF2F2; color:#B91C1C;} .b-blue{background:#EFF6FF; color:#1D4ED8;}
+  .b-amber{background:#FFFBEB; color:#B45309;} .b-green{background:#ECFDF5; color:#047857;}
+  .steps{counter-reset:step; list-style:none; padding:0;}
+  .steps li{counter-increment:step; position:relative; padding:6px 0 6px 38px; margin:2px 0;}
+  .steps li::before{
+    content:counter(step); position:absolute; left:0; top:6px; width:24px; height:24px;
+    background:var(--brand); color:#fff; border-radius:50%; font-size:12px; font-weight:700;
+    display:flex; align-items:center; justify-content:center;
+  }
+  footer{text-align:center; color:var(--ink3); font-size:12px; margin-top:32px;}
+  @media print{
+    body{background:#fff;} section,header.cover{box-shadow:none; border-color:#ddd; break-inside:avoid;}
+    .wrap{padding:0;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="cover">
+    <div class="logo">TRAVELKIT</div>
+    <h1>Guía de Operación · Casos Críticos</h1>
+    <p>Herramienta para registrar y dar seguimiento a los casos críticos del operativo Travelkit.</p>
+    <div class="meta">
+      Acceso: la URL de la aplicación &nbsp;·&nbsp; Ruta principal: <code>/casos</code> &nbsp;·&nbsp; Uso interno
+    </div>
+  </header>
+
+  <!-- PARTE 1 -->
+  <section>
+    <span class="tag">Parte 1 · Guía de operación</span>
+    <h2>Manejo de la herramienta</h2>
+
+    <h3>1. Cómo entra el operativo</h3>
+    <ol class="steps">
+      <li>Abre la <strong>URL de la aplicación</strong> en el navegador.</li>
+      <li>Verás la pantalla <strong>"Portal Casos Críticos"</strong> (login).</li>
+      <li>Ingresa tu <strong>correo</strong> y <strong>contraseña</strong> (los crea un administrador).</li>
+      <li>Pulsa <strong>Ingresar al sistema</strong>.</li>
+      <li>Entras directo al listado de casos.</li>
+    </ol>
+    <div class="note">Si no tienes usuario, pídeselo a un administrador. El acceso es solo para personal Travelkit autorizado. Para salir, usa <strong>Cerrar sesión</strong> (arriba a la derecha).</div>
+
+    <h3>2. Pantalla principal</h3>
+    <ul>
+      <li><strong>Indicadores (arriba):</strong> Casos totales, Abiertos, En seguimiento y Resueltos.</li>
+      <li><strong>Filtros:</strong> rango de fechas, número de caso, voucher, nombre, documento de identidad, fecha de nacimiento, área, estatus y proveedor. Pulsa <strong>Buscar</strong> para aplicar y <strong>Limpiar</strong> para reiniciar.</li>
+      <li><strong>Vistas:</strong> botones <strong>Tabla</strong> y <strong>Kanban</strong>.</li>
+      <li><strong>Botones (arriba a la derecha):</strong> <strong>Tareas pendientes</strong> y <strong>Nuevo caso</strong>.</li>
+    </ul>
+
+    <h3>3. Cómo registrar un caso</h3>
+    <ol class="steps">
+      <li>Pulsa <strong>+ Nuevo caso</strong>.</li>
+      <li>Llena los campos obligatorios: <strong>N.º de Caso</strong>, <strong>Voucher</strong>, <strong>Nombre del Paciente</strong>.</li>
+      <li>Elige <strong>Proveedor</strong> (WTA / WMC) y <strong>Área</strong> (System, Claims, Calidad, Reembolsos o Comercial).</li>
+      <li>Completa documento, fecha de nacimiento, estatus, fecha del evento, países y descripción.</li>
+      <li>En <strong>Documentos del caso</strong>, adjunta archivos (PDF, imágenes…).</li>
+      <li>Pulsa <strong>Registrar caso</strong>.</li>
+    </ol>
+
+    <h3>4. Estatus de un caso</h3>
+    <table>
+      <thead><tr><th>Estatus</th><th>Color</th><th>Significado</th></tr></thead>
+      <tbody>
+        <tr><td><span class="badge b-red">Abierto</span></td><td>Rojo</td><td>Recién registrado, requiere atención</td></tr>
+        <tr><td><span class="badge b-blue">En seguimiento</span></td><td>Azul</td><td>En gestión por el operativo</td></tr>
+        <tr><td><span class="badge b-amber">Respuesta Proveedor</span></td><td>Naranja</td><td>Esperando o recibiendo respuesta del proveedor</td></tr>
+        <tr><td><span class="badge b-green">Resuelto</span></td><td>Verde</td><td>Caso cerrado con éxito</td></tr>
+      </tbody>
+    </table>
+
+    <h3>5. Vista Kanban (arrastrar y soltar)</h3>
+    <ol class="steps">
+      <li>Pulsa el botón <strong>Kanban</strong>.</li>
+      <li>Verás 4 columnas, una por estatus.</li>
+      <li><strong>Arrastra</strong> la tarjeta de un caso de una columna a otra para cambiar su estatus. Se guarda solo.</li>
+      <li>Pulsa una tarjeta para abrir el detalle del caso.</li>
+    </ol>
+
+    <h3>6. Detalle de un caso</h3>
+    <p>Pulsa el botón <strong>+</strong> de la columna <em>Opciones</em> (o clic en la fila / tarjeta). Se abre una ventana con todos los datos, los <strong>documentos</strong> adjuntos, los <strong>recordatorios</strong> y el <strong>seguimiento</strong> (historial de notas con fecha y hora). Para agregar una nota, escribe abajo y pulsa <strong>Enviar</strong>.</p>
+
+    <h3>7. Recordatorios</h3>
+    <p>Tareas con fecha límite (ej. <em>"Llamar a la central"</em>, <em>"Verificar respuesta del proveedor"</em>).</p>
+    <ol class="steps">
+      <li>Abre el caso.</li>
+      <li>En <strong>Recordatorios</strong>, escribe el texto.</li>
+      <li>Elige la <strong>fecha y hora límite</strong>.</li>
+      <li>Deja activado <strong>"Recordatorio por correo"</strong> si quieres aviso por email.</li>
+      <li>Pulsa <strong>Agregar</strong>.</li>
+    </ol>
+    <ul>
+      <li>Si la fecha pasa sin completarse, se marca en <strong>rojo "Vencido"</strong>.</li>
+      <li>Al llegar la fecha, el sistema envía <strong>un correo de aviso</strong> al buzón operativo (si está activado).</li>
+      <li>Al marcar el recordatorio como <strong>completado (✓)</strong>, pasa al <strong>Seguimiento</strong> con la fecha en que se realizó.</li>
+    </ul>
+    <div class="note">El botón <strong>Tareas pendientes</strong> (arriba) muestra todos los recordatorios sin completar de todos los casos, ordenados por fecha y con los vencidos resaltados.</div>
+  </section>
+
+  <!-- PARTE 2 -->
+  <section>
+    <span class="tag">Parte 2 · Manual del usuario</span>
+    <h2>Uso diario (paso a paso)</h2>
+
+    <h3>Entrar</h3>
+    <ol class="steps"><li>Abre la página.</li><li>Escribe tu correo y contraseña.</li><li>Clic en <strong>Ingresar al sistema</strong>.</li></ol>
+
+    <h3>Registrar un caso nuevo</h3>
+    <ol class="steps">
+      <li>Clic en <strong>+ Nuevo caso</strong>.</li>
+      <li>Llena al menos: N.º de Caso, Voucher y Nombre del Paciente.</li>
+      <li>Elige Proveedor y Área.</li>
+      <li>(Opcional) Adjunta documentos.</li>
+      <li>Clic en <strong>Registrar caso</strong>.</li>
+    </ol>
+
+    <h3>Buscar un caso</h3>
+    <ol class="steps"><li>Usa los filtros de arriba (número, nombre, voucher…).</li><li>Clic en <strong>Buscar</strong>. Para ver todo, clic en <strong>Limpiar</strong>.</li></ol>
+
+    <h3>Cambiar el estado de un caso</h3>
+    <ul>
+      <li><strong>Forma fácil:</strong> clic en <strong>Kanban</strong> y arrastra el caso a la columna del nuevo estado.</li>
+      <li>O abre el caso y cámbialo desde ahí.</li>
+    </ul>
+
+    <h3>Dejar una nota de lo que hiciste</h3>
+    <ol class="steps"><li>Abre el caso (clic en la fila o en el botón <strong>+</strong>).</li><li>Escribe abajo en <strong>Seguimiento</strong> y clic en <strong>Enviar</strong>.</li></ol>
+
+    <h3>Ponerte un recordatorio (ej. "llamar a la central")</h3>
+    <ol class="steps">
+      <li>Abre el caso.</li>
+      <li>En <strong>Recordatorios</strong>, escribe la tarea y la fecha/hora.</li>
+      <li>Clic en <strong>Agregar</strong>.</li>
+      <li>Cuando la termines, marca el <strong>✓</strong> — quedará en el seguimiento.</li>
+    </ol>
+
+    <h3>Ver tus pendientes del día</h3>
+    <p>Clic en <strong>Tareas pendientes</strong> (arriba). Lo que esté en <strong>rojo</strong> ya está vencido: atiéndelo primero.</p>
+
+    <h3>Salir</h3>
+    <p>Clic en <strong>Cerrar sesión</strong> (arriba a la derecha).</p>
+  </section>
+
+  <footer>Documento de uso interno · Travelkit · Casos Críticos</footer>
+</div>
+</body>
+</html>
