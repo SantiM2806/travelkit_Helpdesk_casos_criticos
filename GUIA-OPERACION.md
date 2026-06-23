@@ -15,6 +15,7 @@
 4. Pulsa **Ingresar al sistema**.
 5. Entras directamente al listado de casos (`/casos`).
 
+> La aplicación **siempre exige iniciar sesión**: si no hay una sesión activa, te lleva automáticamente a la pantalla de login.
 > Si no tienes usuario, pídeselo a un administrador. El acceso es **solo para personal Travelkit autorizado**.
 > Para salir, usa el botón **"Cerrar sesión"** (arriba a la derecha).
 
