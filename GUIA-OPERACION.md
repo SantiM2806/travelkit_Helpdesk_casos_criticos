@@ -1,7 +1,7 @@
 # Guía de Operación — Casos Críticos Travelkit
 
 > Herramienta para registrar y dar seguimiento a los casos críticos del operativo Travelkit.
-> Acceso: la URL de la aplicación (Vercel) · Ruta principal: **`/casos`**
+> Acceso: **https://casos.travelkit.us** · Ruta principal: **`/casos`**
 
 ---
 
@@ -9,7 +9,7 @@
 
 ### 1.1 Cómo entra el operativo
 
-1. Abre la **URL de la aplicación** en el navegador.
+1. Abre **https://casos.travelkit.us** en el navegador.
 2. Te lleva a la pantalla **"Portal Casos Críticos"** (login).
 3. Ingresa tu **correo** y **contraseña** (los crea un administrador en el sistema).
 4. Pulsa **Ingresar al sistema**.
@@ -87,6 +87,19 @@ Los recordatorios son tareas con fecha límite (ej. *"Llamar a la central"*, *"V
 
 **Ver todos los pendientes:**
 - Pulsa **Tareas pendientes** (arriba). Muestra todos los recordatorios sin completar de **todos los casos**, ordenados por fecha, con los vencidos resaltados. Desde ahí puedes marcarlos como completados o abrir el caso.
+
+### 1.8 Casos de reembolso automáticos (por correo)
+
+Algunos casos **se crean solos**, sin registrarlos a mano:
+
+- Cuando llega un correo a **`asistencia@travelkit.us`** con un asunto de reembolso, por ejemplo:
+  ```
+  Documento de tipo Reembolso | 1655346-02 [ALFONSO MARIA MARTINEZ RESTREPO] | GB-80G6M
+  ```
+- El sistema toma del asunto el **número de caso**, el **nombre del paciente** y el **voucher**, y crea el caso con **Proveedor WTA**, **Área Reembolsos** y estatus **Abierto**.
+- Si el número de caso ya existe, **no se duplica**.
+
+> Por eso es normal ver casos de reembolso en el listado sin haberlos registrado tú. Solo dales seguimiento como a cualquier otro caso.
 
 ---
 

@@ -78,7 +78,7 @@
     <h1>Guía de Operación · Casos Críticos</h1>
     <p>Herramienta para registrar y dar seguimiento a los casos críticos del operativo Travelkit.</p>
     <div class="meta">
-      Acceso: la URL de la aplicación &nbsp;·&nbsp; Ruta principal: <code>/casos</code> &nbsp;·&nbsp; Uso interno
+      Acceso: <code>https://casos.travelkit.us</code> &nbsp;·&nbsp; Ruta principal: <code>/casos</code> &nbsp;·&nbsp; Uso interno
     </div>
   </header>
 
@@ -89,7 +89,7 @@
 
     <h3>1. Cómo entra el operativo</h3>
     <ol class="steps">
-      <li>Abre la <strong>URL de la aplicación</strong> en el navegador.</li>
+      <li>Abre <strong>https://casos.travelkit.us</strong> en el navegador.</li>
       <li>Verás la pantalla <strong>"Portal Casos Críticos"</strong> (login).</li>
       <li>Ingresa tu <strong>correo</strong> y <strong>contraseña</strong> (los crea un administrador).</li>
       <li>Pulsa <strong>Ingresar al sistema</strong>.</li>
@@ -152,6 +152,16 @@
       <li>Al marcar el recordatorio como <strong>completado (✓)</strong>, pasa al <strong>Seguimiento</strong> con la fecha en que se realizó.</li>
     </ul>
     <div class="note">El botón <strong>Tareas pendientes</strong> (arriba) muestra todos los recordatorios sin completar de todos los casos, ordenados por fecha y con los vencidos resaltados.</div>
+
+    <h3>8. Casos de reembolso automáticos (por correo)</h3>
+    <p>Algunos casos <strong>se crean solos</strong>, sin registrarlos a mano. Cuando llega un correo a <strong>asistencia@travelkit.us</strong> con un asunto de reembolso, por ejemplo:</p>
+    <p style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px 14px;font-family:monospace;font-size:13px;">Documento de tipo Reembolso | 1655346-02 [ALFONSO MARIA MARTINEZ RESTREPO] | GB-80G6M</p>
+    <ul>
+      <li>El sistema toma del asunto el <strong>número de caso</strong>, el <strong>nombre del paciente</strong> y el <strong>voucher</strong>.</li>
+      <li>Crea el caso con <strong>Proveedor WTA</strong>, <strong>Área Reembolsos</strong> y estatus <strong>Abierto</strong>.</li>
+      <li>Si el número de caso ya existe, <strong>no se duplica</strong>.</li>
+    </ul>
+    <div class="note">Es normal ver casos de reembolso en el listado sin haberlos registrado tú. Solo dales seguimiento como a cualquier otro caso.</div>
   </section>
 
   <!-- PARTE 2 -->
